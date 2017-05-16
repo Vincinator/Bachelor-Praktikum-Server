@@ -1,5 +1,7 @@
 package bp17.jerseyserver;
 
+import bp12.model.Barrier;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -22,6 +24,6 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "HTTP GET Request Successful!";
+        return "HTTP GET Request Successful! } ";
     }
 }
