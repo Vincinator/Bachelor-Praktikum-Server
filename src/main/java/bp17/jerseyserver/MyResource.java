@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * Root resource (exposed at "myresource" path)
  * Service accessible under
- * http://localhost:8081/myapp/myresource
+ * http://http://0.0.0.0:8081/myapp/myresource
  */
 @Path("myresource")
 public class MyResource {
@@ -24,6 +24,6 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "HTTP GET Request Successful! } ";
+        return "HTTP GET Request Successful!";
     }
 }
