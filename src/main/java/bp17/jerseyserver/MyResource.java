@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * Root resource (exposed at "myresource" path)
  * Service accessible under
- * http://localhost:8080/bp17.jerseyserver/myresource
+ * http://localhost:8081/myapp/myresource
  */
 @Path("myresource")
 public class MyResource {
