@@ -1,18 +1,15 @@
-package bp12.model;
+package bp17.model;
 
 /**
  * Created by Vincent on 16.05.2017.
  */
 public class Barrier {
 
-
-
     private String name;
 
     private double longitude = 49.874978;
     private double latitude = 8.655971;
 
-    // must have.
     public Barrier(){
 
     }
@@ -33,9 +30,6 @@ public class Barrier {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
 
     public double getLongitude() {
         return longitude;
@@ -44,12 +38,4 @@ public class Barrier {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-
-    @Override
-    public String toString(){
-        return new StringBuffer(" Name : ").append(this.name)
-                .append(" longitude : ").append(this.longitude)
-                .append(" latitude : ").append(this.latitude).toString();
-    }
-
 }

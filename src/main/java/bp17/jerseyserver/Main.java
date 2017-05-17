@@ -13,6 +13,7 @@ import java.net.URI;
  */
 public class Main {
     // Base URI the Grizzly HTTP server will listen on
+    // 0.0.0.0 is a wildcard, the server will listen on every networkinterface.
     public static final String BASE_URI = "http://0.0.0.0:8081/myapp/";
 
     /**
@@ -36,10 +37,7 @@ public class Main {
      */
     public static void main(String[] args) throws IOException {
         final HttpServer server = startServer();
-        //System.out.println(String.format("Jersey app started with WADL available at "
-        //        + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
-        //System.in.read();
-        //server.stop();
+
     }
 }
 
