@@ -9,8 +9,10 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * Root resource (exposed at "myresource" path)
- * Service accessible under
- * http://http://0.0.0.0:8081/myapp/myresource
+ * Service accessible for local development under
+ * http://localhost:8081/myapp/myresource
+ * The server is configured to be exposed at 0.0.0.0:8081
+ * this means that the server is exposed on all available networkinterfaces.
  */
 @Path("myresource")
 public class MyResource {
