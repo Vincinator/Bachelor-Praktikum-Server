@@ -1,5 +1,5 @@
 ## Introduction
-Server exposing a HTTP API for collecting routing relevant informations.
+Server exposing an HTTP API for collecting routing relevant informations.
 
 ## Dependencies
 
