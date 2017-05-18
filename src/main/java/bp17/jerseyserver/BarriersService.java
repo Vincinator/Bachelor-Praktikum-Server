@@ -1,6 +1,6 @@
 package bp17.jerseyserver;
 
-import bp17.model.Barrier;
+import bp17.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -20,7 +20,7 @@ public class BarriersService {
     @POST
     @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createTrackInJSON(Barrier barrier) {
+    public Response createTrackInJSON(Obstacle barrier) {
         String result = "Barrier Saved: " + barrier;
 
         try{

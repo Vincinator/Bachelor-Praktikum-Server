@@ -1,12 +1,13 @@
 package bp17.jerseyserver;
 
-import bp17.model.Barrier;
+import bp17.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Date;
 
 /**
  * Root resource (exposed at "demobarriere" path)
@@ -25,10 +26,9 @@ public class DemoBarriere {
     public String getIt() {
         String jsonInString = "";
         ObjectMapper mapper = new ObjectMapper(); // create once, reuse
-        Barrier demoBarrier = new Barrier();
-        demoBarrier.setName("Baustelle");
+        Construction demoConstruction = new Construction("Neues Wohngebiet", 49.874978, 8.655971, 200, new Date(2017,5,18));
         try{
-            jsonInString = mapper.writeValueAsString(demoBarrier);
+            jsonInString = mapper.writeValueAsString(demoConstruction);
 
         }catch(Exception e){
         }
