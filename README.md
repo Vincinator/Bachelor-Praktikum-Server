@@ -1,10 +1,12 @@
 ## Introduction
-Dummy Jearsey Server is running on Grizzly 2 based on HTTP Protocol.
-Requirement is that you have installed Maven on your system.
+Server exposing a HTTP API for collecting routing relevant informations.
 
 ## Dependencies
 
 - postgresql
+- grizzly2
+- jersey
+- maven
 
 
 ## Test the Server locally
@@ -12,7 +14,6 @@ Requirement is that you have installed Maven on your system.
 1) mvn clean compile
 2) mvn exec:java
 3) A Demo resource is available at: http://localhost:8081/myapp/demobarriere
-
 
 
 
