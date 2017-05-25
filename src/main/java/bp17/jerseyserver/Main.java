@@ -12,9 +12,8 @@ import java.net.URI;
  *
  */
 public class Main {
-    // Base URI the Grizzly HTTP server will listen on
-    // 0.0.0.0 is a wildcard, the server will listen on every networkinterface.
-    public static final String BASE_URI = "http://0.0.0.0:8081/myapp/";
+
+    public static final String BASE_URI = "http://127.0.0.1:8082/routing/";
 
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
