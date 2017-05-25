@@ -41,7 +41,7 @@ public class MyResourceTest {
      */
     @Test
     public void testGetIt() {
-        String responseMsg = target.path("myresource").request().get(String.class);
-        assertEquals("HTTP GET Request Successful!", responseMsg);
+        String responseMsg = target.path("demobarriere").request().get(String.class);
+        assertEquals("{\"typecode\":\"CONSTRUCTION\",\"longitude\":49.874978,\"latitude\":8.655971,\"size\":200.0,\"validUntil\":61455880800000,\"name\":\"Neues Wohngebiet\"}", responseMsg);
     }
 }
