@@ -39,10 +39,11 @@ public class MyResourceTest {
 
     /**
      * Test to see that the message "HTTP GET Request Successful!" is sent in the response.
-     */
+    
     @Test
     public void testGetIt() {
       //  String responseMsg = target.path("myresource").request().get(String.class);
         //assertEquals("HTTP GET Request Successful!", responseMsg);
     }
+     */
 }
