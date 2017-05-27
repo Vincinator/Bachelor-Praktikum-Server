@@ -1,3 +1,5 @@
+[![Build Status](https://jenkins.vincinator.de/buildStatus/icon?job=bp17)](https://jenkins.vincinator.de/job/bp17)
+
 ## Introduction
 Server exposing an HTTP API for collecting routing relevant informations.
 
