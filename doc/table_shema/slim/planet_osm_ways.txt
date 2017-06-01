@@ -1,0 +1,10 @@
+Table "public.planet_osm_ways"
+ Column |   Type   | Modifiers 
+--------+----------+-----------
+ id     | bigint   | not null
+ nodes  | bigint[] | not null
+ tags   | text[]   | 
+Indexes:
+    "planet_osm_ways_pkey" PRIMARY KEY, btree (id)
+    "planet_osm_ways_nodes" gin (nodes) WITH (fastupdate=off)
+

@@ -1,0 +1,13 @@
+ Table "public.planet_osm_rels"
+ Column  |   Type   | Modifiers 
+---------+----------+-----------
+ id      | bigint   | not null
+ way_off | smallint | 
+ rel_off | smallint | 
+ parts   | bigint[] | 
+ members | text[]   | 
+ tags    | text[]   | 
+Indexes:
+    "planet_osm_rels_pkey" PRIMARY KEY, btree (id)
+    "planet_osm_rels_parts" gin (parts) WITH (fastupdate=off)
+

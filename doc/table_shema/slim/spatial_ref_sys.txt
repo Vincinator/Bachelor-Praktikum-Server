@@ -1,0 +1,13 @@
+         Table "public.spatial_ref_sys"
+  Column   |          Type           | Modifiers 
+-----------+-------------------------+-----------
+ srid      | integer                 | not null
+ auth_name | character varying(256)  | 
+ auth_srid | integer                 | 
+ srtext    | character varying(2048) | 
+ proj4text | character varying(2048) | 
+Indexes:
+    "spatial_ref_sys_pkey" PRIMARY KEY, btree (srid)
+Check constraints:
+    "spatial_ref_sys_srid_check" CHECK (srid > 0 AND srid <= 998999)
+

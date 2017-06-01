@@ -1,0 +1,9 @@
+Table "public.planet_osm_nodes"
+ Column |  Type   | Modifiers 
+--------+---------+-----------
+ id     | bigint  | not null
+ lat    | integer | not null
+ lon    | integer | not null
+Indexes:
+    "planet_osm_nodes_pkey" PRIMARY KEY, btree (id)
+
