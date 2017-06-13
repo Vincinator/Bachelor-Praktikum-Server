@@ -10,28 +10,6 @@
 |`planet_osm_ways`|contains the roads and streets in `planet_osm_line`, probably describes the same amount. The difference is that `planet_osm_ways` determines of which nodes a way is composed of. The 3 attributes are `id`(id = osm_id from `planet_osm_lines`) `nodes` (is a list of nodes of which a node is composed of) and `tags` (a list of used tags and their values). More information and examples follow|
 |`spatial_ref_sys`|TODO: No Idea|
 
-## Attribute Explaination:
-#### planet_osm_rels
-| Attribute | Explaination | Sample Database | Sample in OSM File|
-|-----------|--------------|-----------------|-------------------|
-|id|relation id in osm file|7043760|`<relation id="7043760"...>`|
-|way_off|TODO|25|not found in osm file|
-|rel_off|TODO|143|not found in osm file|
-|parts|a list of id of all the member components e.g for bus route this is going to be a list of osm_id of of stations|"{474409457,2591193489,340147841(...)"|`<member type="node" ref="474409457" role="stop"/><member type="way" ref="255736141" role="platform"/>`|
-|members|same list as parts but with more information with the shema: 1) Type of component concate with the id + role tag |"{n474409457,stop,w255736141,platform,n2591193489,stop (...)"|same as above|
-|tags|a list of used tags and their values|"{from,"Darmstadt Ludwigshöhstraße",name,"Bus U: Darmstadt Ludwigshöhstraße => Urberach",network,RMV(...)}"|`<tag k="type" v="route"/>	<tag k="route" v="bus"/>`|
-
-# Explaination of Tables in Database
-| Table Name | Description |
-|------------|-------------|
-|`planet_osm_line`|contains ALL imported ways and contains all 69 attributes. Key is `osm_id`
-|`planet_osm_nodes`|is a light version of `planet_osm_point` and contains only 3 attributes `id`, `lat`, `long`|
-|`planet_osm_point`|contains all important nodes with tags, this one is a full version with 69 attributes|
-|`planet_osm_polygon`|contains all imported polygons. Relations seem to be resolved for that|
-|`planet_osm_rels`| is a table of 6 attributes `id, way_off, rel_off, parts, members, tags` and describe all kind of things like hiking, bus, flixbus, rmv routes, restriction (such as speed limitation, turning prohibition). Example and explaination for each attribute follows|
-|`planet_osm_roads`|contains a SUBSET of `planet_osm_line` suitable for rendering at low (weiter weg) zoom levels. `planet_osm_line` contains too many elements to render on overview maps|
-|`planet_osm_ways`|contains the roads and streets in `planet_osm_line`, probably describes the same amount. The difference is that `planet_osm_ways` determines of which nodes a way is composed of. The 3 attributes are `id`(id = osm_id from `planet_osm_lines`) `nodes` (is a list of nodes of which a node is composed of) and `tags` (a list of used tags and their values). More information and examples follow|
-|`spatial_ref_sys`|TODO: No Idea|
 
 ## Attribute Explaination:
 #### planet_osm_rels
@@ -92,34 +70,6 @@
 		<tag k="motor_vehicle" v="no"/>
 </way>
 ```
-# Source:
-http://wiki.openstreetmap.org/wiki/Osm2pgsql/schema#Tables_Created
-https://gis.stackexchange.com/questions/37099/in-osm2pgsql-how-is-the-planet-osm-roads-table-populated
-
-# Helpful Information:
-- Examples and Meaning of TAGS, KEYS...
-https://taginfo.openstreetmap.org/
-- How to list all Database using psql
-https://dba.stackexchange.com/questions/1285/how-do-i-list-all-databases-and-tables-using-psql
-- planet_osm_roads: contains a SUBSET of planet_osm_line suitable for rendering at low (weiter weg) zoom levels. planet_osm_line contains too many elements to render on overview maps.
-
-planet_osm_ways
-	- id: id von der Strasse
-	- nodes: eine Liste aus Knoten, aus welchen diese Strasse besteht in Form {4645499195,4645499194,4645059531,4645059532,4645059533,4645059534,4645059536}
-	- tags: eine Liste aus verwendeten Tags und deren Werten in Form: {barrier,fence,fence_type,metal}
-	Code im osm Datei wäre:
-
-	<way id="470309745" version="2" timestamp="2017-01-30T20:14:02Z" changeset="45663381" uid="380943" user="Heidas">
-		<nd ref="4645499195"/>
-		<nd ref="4645499194"/>
-		<nd ref="4645059531"/>
-		<nd ref="4645059532"/>
-		<nd ref="4645059533"/>
-		<nd ref="4645059534"/>
-		<nd ref="4645059536"/>
-		<tag k="barrier" v="fence"/>
-		<tag k="fence_type" v="metal"/>
-	</way>
 
 # Source:
 - http://wiki.openstreetmap.org/wiki/Osm2pgsql/schema#Tables_Created
