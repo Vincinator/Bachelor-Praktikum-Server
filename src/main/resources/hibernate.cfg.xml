@@ -36,7 +36,7 @@
         <!-- Deaktiviere folgende Property um Daten in Datenbank zu persistieren-->
         <property name="hbm2ddl.auto">update</property>
 
-        <mapping class="bp17.model.Obstacle"/>
+        <mapping class="bp.common.model.Obstacle"/>
 
 
 
