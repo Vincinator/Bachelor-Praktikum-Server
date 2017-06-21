@@ -34,7 +34,7 @@
 
         <!-- DEBUG: Drop and re-create the database schema on startup-->
         <!-- Deaktiviere folgende Property um Daten in Datenbank zu persistieren-->
-        <property name="hbm2ddl.auto">create</property>
+        <property name="hbm2ddl.auto">update</property>
 
         <mapping class="bp17.model.Obstacle"/>
 
