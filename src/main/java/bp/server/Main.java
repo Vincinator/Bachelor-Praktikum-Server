@@ -1,4 +1,4 @@
-package bp17.jerseyserver;
+package bp.server;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;

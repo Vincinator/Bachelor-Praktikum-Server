@@ -9,6 +9,14 @@
     <version>1.0-SNAPSHOT</version>
     <name>jerseyserver</name>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+
+    </repositories>
+
     <properties>
         <jersey.version>2.25.1</jersey.version>
         <jackson.version>2.7.0</jackson.version>
@@ -29,7 +37,14 @@
         </dependencies>
     </dependencyManagement>
 
+
     <dependencies>
+        <dependency>
+            <groupId>com.github.Vincinator</groupId>
+            <artifactId>BP-Common</artifactId>
+            <version>master-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
          <!-- Normal Grizzly HTTP Protocol-->
         <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
@@ -106,7 +121,7 @@
                     <finalName>bp17.jerseyserver-${project.version}</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>bp17.jerseyserver.Main</mainClass>
+                            <mainClass>bp.server.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -144,7 +159,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>bp17.jerseyserver.Main</mainClass>
+                    <mainClass>bp.server.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

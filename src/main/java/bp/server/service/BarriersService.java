@@ -1,23 +1,19 @@
-package bp17.jerseyserver;
+package bp.server.service;
 
-import bp17.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import bp.common.model.Obstacle;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import javax.management.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.util.List;
+
 
 /**
  * Created by Vincent on 18.05.2017.
@@ -31,7 +27,6 @@ public class BarriersService {
     public Response getObstacles(){
 
         String result = "";
-
         try{
             // Save the Barrier via Hibernate to the Database.
             Configuration config = new Configuration();
