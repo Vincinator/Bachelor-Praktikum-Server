@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -18,25 +19,25 @@ public class BarriersService {
 
 
     @POST
-    @Path("/post")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createTrackInJSON(Obstacle barrier) {
-        String result = "Barrier Saved: " + barrier;
+    public Response postNewObstacle(Obstacle obstacle) {
+        String result = "Obstacle hinzugefügt: " + obstacle;
 
         try{
             // Save the Barrier via Hibernate to the Database.
             Configuration config = new Configuration();
-            config.configure();
+            config.configure("hibernate.cfg.xml"); //populates the data of the configuration file
             SessionFactory sessionFactory = config.buildSessionFactory();
 
             Session session = sessionFactory.openSession();
             session.beginTransaction();
-            session.save(barrier);
+            session.save(obstacle);
             session.getTransaction().commit();
 
         } catch (Exception e){
-            System.out.println(e.toString());
-
+            // TODO: Entferne Exception aus Response für Produktiveinsatz.
+            // Für Debugging wird die Exception als Response ausgegeben.
+            return Response.status(503).entity(e.toString()).build();
         }
 
         return Response.status(201).entity(result).build();
@@ -45,9 +46,9 @@ public class BarriersService {
 
     @GET
     @Path("/{id}")
-    public Response getIt(@PathParam("id") String id) {
+    public Response getIttt(@PathParam("id") String id) {
 
-        return Response.status(200).entity("Barrier with, id : " + id).build();
+        return Response.status(200).entity("Barrier with, id: " + id).build();
     }
 
 }

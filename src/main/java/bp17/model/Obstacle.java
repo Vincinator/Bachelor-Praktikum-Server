@@ -1,15 +1,37 @@
 package bp17.model;
 
+
+import org.eclipse.persistence.annotations.PrimaryKey;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+
 /**
  * Created by Bi on 18.05.2017.
  */
-public class Obstacle {
+@Entity
+public class Obstacle  {
 
-    private String typename;
-    private ObstacleTypes typecode;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-    private double longitude = 49.874978;
-    private double latitude = 8.655971;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+
+    public String typename;
+    public ObstacleTypes typecode;
+
+    public double longitude = 49.874978;
+    public double latitude = 8.655971;
 
     public Obstacle(){
 
@@ -54,9 +76,5 @@ public class Obstacle {
         this.longitude = longitude;
     }
 
-    // Test
-    public static void main(String[] args){
-		System.out.println("HAHA");
-		System.out.println(ObstacleTypes.STAIRS);
-	}
+
 }
