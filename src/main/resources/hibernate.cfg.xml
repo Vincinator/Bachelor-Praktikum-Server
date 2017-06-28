@@ -34,10 +34,15 @@
 
         <!-- DEBUG: Drop and re-create the database schema on startup-->
         <!-- Deaktiviere folgende Property um Daten in Datenbank zu persistieren-->
-        <property name="hbm2ddl.auto">update</property>
+        <property name="hbm2ddl.auto">create</property>
 
-        <mapping class="bp.common.model.Obstacle"/>
-
+        <mapping class="bp.common.model.Stairs"/>
+        <mapping class="bp.common.model.Ramp"/>
+        <mapping class="bp.common.model.Unevenness"/>
+        <mapping class="bp.common.model.Construction"/>
+        <mapping class="bp.common.model.Elevator"/>
+        <mapping class="bp.common.model.FastTrafficLight"/>
+        <mapping class="bp.common.model.TightPassage"/>
 
 
     </session-factory>
