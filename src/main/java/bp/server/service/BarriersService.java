@@ -32,7 +32,11 @@ public class BarriersService {
 
     public static <T> String getData (Class<T> typeParameterClass) throws JsonProcessingException {
 
-        Session session = getSession();
+        // Save the Barrier via Hibernate to the Database.
+        Configuration config = new Configuration();
+        config.configure("hibernate.cfg.xml"); //populates the data of the configuration file
+        SessionFactory sessionFactory = config.buildSessionFactory();
+        Session session = sessionFactory.openSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<T> criteria = builder.createQuery(typeParameterClass);
         Root<T> root = criteria.from(typeParameterClass);
@@ -53,7 +57,11 @@ public class BarriersService {
         String result = "";
         try{
 
-            Session session = getSession();
+            // Save the Barrier via Hibernate to the Database.
+            Configuration config = new Configuration();
+            config.configure("hibernate.cfg.xml"); //populates the data of the configuration file
+            SessionFactory sessionFactory = config.buildSessionFactory();
+            Session session = sessionFactory.openSession();
             CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<Stairs> criteria = builder.createQuery(Stairs.class);
             Root<Stairs> root = criteria.from(Stairs.class);
