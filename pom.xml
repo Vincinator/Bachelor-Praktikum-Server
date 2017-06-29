@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.github.Vincinator</groupId>
             <artifactId>BP-Common</artifactId>
-            <version>6873949</version>
+            <version>2022f19878</version>
             <scope>compile</scope>
         </dependency>
          <!-- Normal Grizzly HTTP Protocol-->

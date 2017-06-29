@@ -2,6 +2,7 @@ package bp.server.service;
 
 import bp.common.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -41,12 +42,13 @@ public class BarriersService {
         CriteriaQuery<T> criteria = builder.createQuery(typeParameterClass);
         Root<T> root = criteria.from(typeParameterClass);
         criteria.select(root);
-        List<T> elevators = session.createQuery(criteria).getResultList();
+        List<T> datalist = session.createQuery(criteria).getResultList();
         session.close();
 
         ObjectMapper mapper = new ObjectMapper();
+        JavaType listJavaType = mapper.getTypeFactory().constructCollectionType(List.class, typeParameterClass);
 
-        return mapper.writeValueAsString(elevators);
+        return mapper.writerWithType(listJavaType).writeValueAsString(datalist);
     }
 
     @GET
@@ -56,22 +58,7 @@ public class BarriersService {
 
         String result = "";
         try{
-
-            // Save the Barrier via Hibernate to the Database.
-            Configuration config = new Configuration();
-            config.configure("hibernate.cfg.xml"); //populates the data of the configuration file
-            SessionFactory sessionFactory = config.buildSessionFactory();
-            Session session = sessionFactory.openSession();
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaQuery<Stairs> criteria = builder.createQuery(Stairs.class);
-            Root<Stairs> root = criteria.from(Stairs.class);
-            criteria.select(root);
-            List<Stairs> elevators = session.createQuery(criteria).getResultList();
-            session.close();
-
-            ObjectMapper mapper = new ObjectMapper();
-
-            result = mapper.writeValueAsString(elevators);
+            result = getData(Stairs.class);
 
         } catch (Exception e){
             return Response.status(503).entity(e.toString()).build();
