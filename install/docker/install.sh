@@ -17,4 +17,4 @@ su postgres -c "createdb hibernatedb --owner hibernateuser"
 
 service postgresql reload
 
-java -jar /opt/container.jar
+# java -jar /opt/container.jar
