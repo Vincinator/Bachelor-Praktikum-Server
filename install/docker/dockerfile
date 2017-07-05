@@ -1,0 +1,6 @@
+FROM ubuntu:latest
+MAINTAINER Vincent Riesop (Vincent.Riesop@yahoo.com)
+COPY install.sh /opt/
+COPY container.jar /opt/
+CMD ["sh","/opt/install.sh"]
+
