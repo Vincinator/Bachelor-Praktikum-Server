@@ -1,169 +1,120 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
+<modelVersion>4.0.0</modelVersion>
 
-    <groupId>bp17.jerseyserver</groupId>
-    <artifactId>jerseyserver</artifactId>
-    <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>jerseyserver</name>
+<groupId>bp17.jerseyserver</groupId>
+<artifactId>jerseyserver</artifactId>
+<packaging>war</packaging>
+<version>1.0.0</version>
+<name>jerseyserver</name>
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 
-    </repositories>
+<properties>
+    <jersey.version>2.26-b03</jersey.version>
+    <jackson.version>2.7.0</jackson.version>
+    <jackson.core.version>2.4.4 </jackson.core.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jetty-version>9.0.7.v20131107</jetty-version>
+    <swagger-version>1.5.15</swagger-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
 
-    <properties>
-        <jersey.version>2.25.1</jersey.version>
-        <jackson.version>2.7.0</jackson.version>
-        <jackson.core.version>2.4.4 </jackson.core.version>
+<build>
+    <finalName>bp-routingserver</finalName>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>2.5.1</version>
+            <inherited>true</inherited>
+            <configuration>
+                <source>1.7</source>
+                <target>1.7</target>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
 
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.glassfish.jersey</groupId>
-                <artifactId>jersey-bom</artifactId>
-                <version>${jersey.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-
+<dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>com.github.Vincinator</groupId>
-            <artifactId>BP-Common</artifactId>
-            <version>2022f19878</version>
-            <scope>compile</scope>
+            <groupId>org.glassfish.jersey</groupId>
+            <artifactId>jersey-bom</artifactId>
+            <version>${jersey.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
         </dependency>
-         <!-- Normal Grizzly HTTP Protocol-->
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-grizzly2-http</artifactId>
-        </dependency>
-        <!-- Type of JSON support specified here
-        in this case MOXy is specified, can be changed later-->
-         <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-moxy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
-            <scope>test</scope>
-        </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-        <dependency>
-            <!-- Note: core-annotations version x.y.0 is generally compatible with
-                 (identical to) version x.y.1, x.y.2, etc. -->
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>5.2.10.Final</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>9.4.1212</version>
-        </dependency>
-
     </dependencies>
+</dependencyManagement>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <inherited>true</inherited>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <!--Add following to create an UBER JAR
-            (a standalone file which can be run anywhere)
-            After running:
-            1) mvn clean compile
-            2) mvn package
-            3) *.jar file is in .../target-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <finalName>bp17.jerseyserver-${project.version}</finalName>
-                    <archive>
-                        <manifest>
-                            <mainClass>bp.server.Main</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.4</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals><goal>copy-dependencies</goal></goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--END OF UBER JAR Plugin-->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>bp.server.Main</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+<dependencies>
+
+    <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-jersey2-jaxrs</artifactId>
+        <version>1.5.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.glassfish.jersey.containers</groupId>
+        <artifactId>jersey-container-servlet-core</artifactId>
+        <!-- use the following artifactId if you don't need servlet 2.x compatibility -->
+        <!-- artifactId>jersey-container-servlet</artifactId -->
+    </dependency>
+    <!-- uncomment this to get JSON support
+    <dependency>
+        <groupId>org.glassfish.jersey.media</groupId>
+        <artifactId>jersey-media-json-binding</artifactId>
+    </dependency>
+    -->
+    <dependency>
+
+        <groupId>com.github.Vincinator</groupId>
+        <artifactId>BP-Common</artifactId>
+        <version>2022f19878</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.9</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+        <!-- Note: core-annotations version x.y.0 is generally compatible with
+             (identical to) version x.y.1, x.y.2, etc. -->
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-core</artifactId>
+        <version>5.2.10.Final</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>9.4.1212</version>
+    </dependency>
+</dependencies>
 
     <reporting>
         <plugins>
@@ -189,7 +140,5 @@
             </plugin>
         </plugins>
     </reporting>
-
-
 
 </project>

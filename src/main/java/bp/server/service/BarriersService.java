@@ -22,14 +22,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import io.swagger.annotations.Api;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-
 /**
- * Created by Vincent on 18.05.2017.
+ *
  */
+@Api
 @Path("/barriers")
 public class BarriersService {
 
@@ -201,7 +203,7 @@ public class BarriersService {
   @POST
   @Path("/stairs")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response postNewObstacle(Stairs stairs) {
+  public Response postNewStairs(Stairs stairs) {
     String result = "Stairs hinzugefügt: " + stairs;
     try {
       Session session = getSession();
@@ -222,7 +224,7 @@ public class BarriersService {
   @POST
   @Path("/ramps")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response postNewObstacle(Ramp ramp) {
+  public Response postNewRamp(Ramp ramp) {
     String result = "Ramp hinzugefügt: " + ramp;
     try {
       Session session = getSession();
