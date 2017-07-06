@@ -23,7 +23,7 @@ service postgresql reload
 ###############################################################
 
 
-sudo rm -rf /var/lib/tomcat8/webapps/ROOT
+sudo rm -rf /var/lib/tomcat8/webapps/ROOT/
 cp /opt/ROOT.war $webapps_dir
 chown tomcat8:tomcat8 $webapps_dir/ROOT.war
 
