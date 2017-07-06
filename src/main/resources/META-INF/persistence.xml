@@ -5,7 +5,7 @@
     <persistence-unit name="sample">
         <jta-data-source>java:/DefaultDS</jta-data-source>
         <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect"/>
             <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
 
         </properties>
