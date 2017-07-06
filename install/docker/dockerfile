@@ -1,6 +1,8 @@
-FROM ubuntu:latest
+FROM vincinator/bp:latest
 MAINTAINER Vincent Riesop (Vincent.Riesop@yahoo.com)
-COPY install.sh /opt/
-COPY container.jar /opt/
-CMD ["sh","/opt/install.sh"]
+RUN apt-get update
+RUN apt-get install -y postgresql postgresql-contrib sudo default-jre tomcat8 wget vim
 
+COPY install.sh /opt/
+COPY ROOT.war /opt/ROOT.war
+RUN sh /opt/install.sh
