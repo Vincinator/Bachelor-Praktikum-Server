@@ -21,7 +21,7 @@
         <property name="connection.pool_size">1</property>
 
         <!-- SQL dialect: PostgreSQL94Dialect - dialect for Postgres 9.4 and later.-->
-        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL94Dialect</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQL95Dialect</property>
 
         <!-- Enable Hibernate's automatic session context management -->
         <property name="current_session_context_class">thread</property>
@@ -34,7 +34,7 @@
 
         <!-- DEBUG: Drop and re-create the database schema on startup-->
         <!-- Deaktiviere folgende Property um Daten in Datenbank zu persistieren-->
-        <property name="hbm2ddl.auto">update</property>
+        <property name="hbm2ddl.auto">create-drop</property>
         <mapping class="bp.common.model.Obstacle"/>
         <mapping class="bp.common.model.Stairs"/>
         <mapping class="bp.common.model.Ramp"/>
