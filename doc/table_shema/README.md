@@ -1,4 +1,4 @@
-# Explaination of Tables in Database
+# Explanation of Tables in Database
 | Table Name | Description |
 |------------|-------------|
 |`planet_osm_line`|contains ALL imported ways and contains all 69 attributes. Key is `osm_id`
@@ -11,9 +11,9 @@
 |`spatial_ref_sys`|TODO: No Idea|
 
 
-## Attribute Explaination:
+## Attribute Explanation:
 #### planet_osm_rels
-| Attribute | Explaination | Sample Database | Sample in OSM File|
+| Attribute | Explanation | Sample Database | Sample in OSM File|
 |-----------|--------------|-----------------|-------------------|
 |id|relation id in osm file|7043760|`<relation id="7043760"...>`|
 |way_off|TODO|25|not found in osm file|
@@ -45,7 +45,7 @@
 ```
 
 #### planet_osm_ways
-| Attribute | Explaination | Sample Database | Sample in OSM File|
+| Attribute | Explanation | Sample Database | Sample in OSM File|
 |-----------|--------------|-----------------|-------------------|
 |id|id of the way object|14643870|`<way id="14643870" (...)>`|
 |nodes|a list of `osm_id` of nodes, which make this way|"{42026498,45087388,283324560,43362414,43362424,41788329,41972120}"|`<nd ref="42026498"/><nd ref="45087388"/>`|
