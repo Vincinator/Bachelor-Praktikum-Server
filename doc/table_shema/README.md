@@ -1,26 +1,47 @@
 # Explanation of Tables in Database
 | Table Name | Description |
 |------------|-------------|
-|`planet_osm_line`|contains ALL imported ways and contains all 69 attributes. Key is `osm_id`
-|`planet_osm_nodes`|is a light version of `planet_osm_point` and contains only 3 attributes `id`, `lat`, `long`|
-|`planet_osm_point`|contains all important nodes with tags, this one is a full version with 69 attributes|
-|`planet_osm_polygon`|contains all imported polygons. Relations seem to be resolved for that|
-|`planet_osm_rels`| is a table of 6 attributes `id, way_off, rel_off, parts, members, tags` and describe all kind of things like hiking, bus, flixbus, rmv routes, restriction (such as speed limitation, turning prohibition). Example and explaination for each attribute follows|
-|`planet_osm_roads`|contains a SUBSET of `planet_osm_line` suitable for rendering at low (weiter weg) zoom levels. `planet_osm_line` contains too many elements to render on overview maps|
-|`planet_osm_ways`|contains the roads and streets in `planet_osm_line`, probably describes the same amount. The difference is that `planet_osm_ways` determines of which nodes a way is composed of. The 3 attributes are `id`(id = osm_id from `planet_osm_lines`) `nodes` (is a list of nodes of which a node is composed of) and `tags` (a list of used tags and their values). More information and examples follow|
+|`nodes`|contains ALL imported nodes, consists of 7 attributes. Key is `id`
+|`relation_members`| is a table of 5 attributes `relation_id, member_id, member_type, member_role, sequence_id` and describe all kind of things like hiking, bus, flixbus, rmv routes, restriction (such as speed limitation, turning prohibition). Example and explaination for each attribute follows. This table give information about which node belongs to which relation. All items belonging to the same relation also have identical `relation_id`|
+|`relations`|is a table of 6 attributes `id, version, user_id, tstamp, changeset_id, tags`. The only important things are `id, tags`. Tags contain all tags and its value e.g name = 'Bus 5515'|
+|`schema_info`|Internal information for parsing. Not interesting for us|
+|`users`|Empty. Not interesting for us|
+|`way_nodes`|is a table of 3 attributes `way_id, node_id, sequence_id` and contains all information about streets and road, itd `id` and and member nodes. `sequence_id` tells the order of the member nodes.|
+|`ways`|is a table of 7 atributes `id, version, user_id, tstamp, changeset_id, tags, nodes` and contains the more precise information about each way object. The interesting thing here are `tags, nodes`. `tags` tells information about the street e.g streetname, speedlimit etc and `nodes` is a list of id of nodes members|
 |`spatial_ref_sys`|TODO: No Idea|
 
 
+
+
 ## Attribute Explanation:
-#### planet_osm_rels
+#### nodes
 | Attribute | Explanation | Sample Database | Sample in OSM File|
 |-----------|--------------|-----------------|-------------------|
-|id|relation id in osm file|7043760|`<relation id="7043760"...>`|
-|way_off|TODO|25|not found in osm file|
-|rel_off|TODO|143|not found in osm file|
-|parts|a list of id of all the member components e.g for bus route this is going to be a list of osm_id of of stations|"{474409457,2591193489,340147841(...)"|`<member type="node" ref="474409457" role="stop"/><member type="way" ref="255736141" role="platform"/>`|
-|members|same list as parts but with more information with the shema: 1) Type of component concate with the id + role tag |"{n474409457,stop,w255736141,platform,n2591193489,stop (...)"|same as above|
-|tags|a list of used tags and their values|"{from,"Darmstadt Ludwigshöhstraße",name,"Bus U: Darmstadt Ludwigshöhstraße => Urberach",network,RMV(...)}"|`<tag k="type" v="route"/>	<tag k="route" v="bus"/>`|
+|id|relation id in osm file |'2502785849'|`<node id="2502785849" lat="49.9837076" lon="8.7870278"/>`|
+|version|irrelevant|-1 is default||
+|user_id|irrelevant|-1 is default||
+|tstamp|irrelevant|1970-01-01 00:59:59 is default||
+|changeset_id|irrelevant|-1 is default|
+|tags|a string from type `hstore` containing the used tags and their values|"natural"=>"tree"|`<node id="2502785880" lat="49.9855201" lon="8.7933324"><tag k="natural" v="tree"/></node>`|
+|geom|PostGIS own datatype `geometry` used to encode geometry. Encode with `ST_MakePoint(longitude, latitude)`. To read this as text in Postgresql use `SELECT ST_AsText(the_geom)`|0101000020E6100000E2B611AA2F9621407C86CB8525FE4840|lat="49.9855201" lon="8.7933324"|
+
+#### relation_members
+| Attribute | Explanation | Sample Database | Sample in OSM File|
+|-----------|--------------|-----------------|-------------------|
+|relation_id|relation id in osm file. Items belonging to the same relation have identical relation_id |7043760|`<relation id="7043760"...>`|
+|member_id|the id of the member, this could be the id from a way, node, etc. element|'474409457'|`<member type="node" ref="474409457" role="stop"/>`|
+|member_type|1 character attribut telling which type this member has e.g node, way|W|`<member type="way" ref="255736141" role="platform"/>`|
+|member_role|telling which role this member has e.g is it a plattform, a stop, etc|plattform, stop, from, via, ect.|`<member type="node" ref="474409457" role="stop"/>`|
+|sequence_id|tell the order of the member item|1(means the first element)|this item will be at the first spot|
+
+#### relations
+| Attribute | Explanation | Sample Database | Sample in OSM File|
+|-----------|--------------|-----------------|-------------------|
+|id|relation id in osm file. Items belonging to the same relation have identical relation_id |7043760|`<relation id="7043760"...>`|
+|version|irrelevant|-1 is default||
+|tstamp|irrelevant|1970-01-01 00:59:59 is default||
+|changeset_id|irrelevant|-1 is default|
+|tags|a string from type `hstore` containing the used tags and their values|"to"=>"Urberach Bahnhof", "ref"=>"U", "from"=>"Darmstadt Ludwigshöhstraße", "name"=>"Bus U: Darmstadt Ludwigshöhstraße => Urberach", "type"=>"route", "route"=>"bus", "state"=>"alternate", "network"=>"RMV", "public_transport:version"=>"2"|`<tag k="type" v="route"/>	<tag k="route" v="bus"/>`|
 
 ```
 <relation id="7043760" version="3" timestamp="2017-03-12T10:28:28Z" changeset="46782076" uid="286452" user="TetiSoft">
