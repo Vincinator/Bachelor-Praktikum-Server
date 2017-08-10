@@ -65,33 +65,6 @@
 	</relation>
 ```
 
-#### planet_osm_ways
-| Attribute | Explanation | Sample Database | Sample in OSM File|
-|-----------|--------------|-----------------|-------------------|
-|id|id of the way object|14643870|`<way id="14643870" (...)>`|
-|nodes|a list of `osm_id` of nodes, which make this way|"{42026498,45087388,283324560,43362414,43362424,41788329,41972120}"|`<nd ref="42026498"/><nd ref="45087388"/>`|
-|tags|a list of used tags and their values|"{access,yes,bicycle,no,foot,yes,highway,tertiary,maxspeed,30(...)}"|`<tag k="ref" v="K 165"/><tag k="foot" v="yes"/>`|
-```
-<way id="14643870" version="7" timestamp="2017-04-07T15:52:20Z" changeset="47544133" uid="1650009" user="Geo Dät">
-		<nd ref="42026498"/>
-		<nd ref="45087388"/>
-		<nd ref="283324560"/>
-		<nd ref="43362414"/>
-		<nd ref="43362424"/>
-		<nd ref="41788329"/>
-		<nd ref="41972120"/>
-		<tag k="ref" v="K 165"/>
-		<tag k="foot" v="yes"/>
-		<tag k="name" v="Hauptstraße"/>
-		<tag k="access" v="yes"/>
-		<tag k="oneway" v="yes"/>
-		<tag k="bicycle" v="no"/>
-		<tag k="highway" v="tertiary"/>
-		<tag k="maxspeed" v="30"/>
-		<tag k="motor_vehicle" v="no"/>
-</way>
-```
-
 # Source:
 - http://wiki.openstreetmap.org/wiki/Osm2pgsql/schema#Tables_Created
 - https://gis.stackexchange.com/questions/37099/in-osm2pgsql-how-is-the-planet-osm-roads-table-populated
