@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [![Build Status](https://jenkins.vincinator.de/buildStatus/icon?job=bp17)](https://jenkins.vincinator.de/job/bp17)
 
 ## Introduction
@@ -31,3 +32,30 @@ To create a stand alone jar file for deploying, run following command:
 
 
 
+=======
+[![Build Status](https://jenkins.vincinator.de/buildStatus/icon?job=bp17)](https://jenkins.vincinator.de/job/bp17)
+
+## Introduction
+Server exposing an HTTP API for collecting routing relevant informations.
+
+## Dependencies
+
+- postgresql
+- jersey
+- maven
+
+
+## IntelliJ Integration 
+Setup Tomcat 
+
+1) mvn clean package
+
+
+## Docker Deploy
+
+In order to install the server into a Docker container, you can use the Dockerfile provided in this repo install/docker.
+
+
+
+
+>>>>>>> 4fbeace47d219d8ccc97252fa735f9a77efbb798
