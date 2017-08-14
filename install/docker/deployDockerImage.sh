@@ -1,6 +1,6 @@
 #!/bin/bash
-#docker stop bpserver || true
-#docker rm bpserver || true
+docker stop bpserver || true
+docker rm bpserver || true
 pwd
 ls -la
 
