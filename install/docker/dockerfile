@@ -1,12 +1,11 @@
 FROM vincinator/bp
 MAINTAINER Vincent Riesop (Vincent.Riesop@yahoo.com)
+
 RUN apt-get update --fix-missing
 RUN apt-get install -y postgresql-9.5 postgresql-contrib-9.5 sudo default-jre tomcat8 wget vim
 
 COPY install.sh /opt/
 COPY ROOT.war /opt/ROOT.war
-
-
 RUN service postgresql start && \
             service postgresql start && \
             su postgres -c "createdb hibernatedb --owner postgres"  && \
