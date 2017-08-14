@@ -1,12 +1,6 @@
 package bp.server.service;
 
-import bp.common.model.Construction;
-import bp.common.model.Elevator;
-import bp.common.model.FastTrafficLight;
-import bp.common.model.Ramp;
-import bp.common.model.Stairs;
-import bp.common.model.TightPassage;
-import bp.common.model.Unevenness;
+import bp.common.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -201,14 +195,14 @@ public class BarriersService {
    * @return HTTP Result
    */
   @POST
-  @Path("/stairs")
+  @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response postNewStairs(Stairs stairs) {
-    String result = "Stairs hinzugefügt: " + stairs;
+  public Response postNewStairs(Obstacle obstacle) {
+    String result = "Obstacle hinzugefügt: " + obstacle;
     try {
       Session session = getSession();
       session.beginTransaction();
-      session.save(stairs);
+      session.save(obstacle);
       session.getTransaction().commit();
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
@@ -216,30 +210,10 @@ public class BarriersService {
     return Response.status(201).entity(result).build();
   }
 
-
-  /** (Jersey) API exposes the POST interface.
-   * Creates new ramps
-   * @return HTTP Result
-   */
-  @POST
-  @Path("/ramps")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response postNewRamp(Ramp ramp) {
-    String result = "Ramp hinzugefügt: " + ramp;
-    try {
-      Session session = getSession();
-      session.beginTransaction();
-      session.save(ramp);
-      session.getTransaction().commit();
-    } catch (Exception e) {
-      return Response.status(503).entity(e.toString()).build();
-    }
-    return Response.status(201).entity(result).build();
-  }
 
   @GET
   @Path("/{id}")
-  public Response getIttt(@PathParam("id") String id) {
+  public Response getObstacleById(@PathParam("id") String id) {
 
     return Response.status(200).entity("Barrier with, id: " + id).build();
   }
