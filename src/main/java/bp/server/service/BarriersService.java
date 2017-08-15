@@ -1,6 +1,7 @@
 package bp.server.service;
 
 import bp.common.model.*;
+import bp.common.model.obstacles.Obstacle;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,11 +17,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.crypto.Data;
 
 import io.swagger.annotations.Api;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import sun.net.www.protocol.file.FileURLConnection;
 
 /**
  *
@@ -49,11 +54,11 @@ public class BarriersService {
   public static <T> String getData(Class<T> typeParameterClass)
       throws JsonProcessingException {
 
-    // Save the Barrier via Hibernate to the Database.
-    Configuration config = new Configuration();
-    config.configure("hibernate.cfg.xml");
-    SessionFactory sessionFactory = config.buildSessionFactory();
+    // Session Factory is created only once in the life span of the application. Get it from the Singleton
+    SessionFactory sessionFactory = DatabaseSessionManager.instance().getSessionFactory();
+
     Session session = sessionFactory.openSession();
+
     CriteriaBuilder builder = session.getCriteriaBuilder();
     CriteriaQuery<T> criteria = builder.createQuery(typeParameterClass);
     Root<T> root = criteria.from(typeParameterClass);
@@ -63,22 +68,24 @@ public class BarriersService {
 
     ObjectMapper mapper = new ObjectMapper();
     JavaType listJavaType =
-        mapper.getTypeFactory().constructCollectionType(List.class, typeParameterClass);
+            mapper.getTypeFactory().constructCollectionType(List.class, typeParameterClass);
 
     return mapper.writerWithType(listJavaType).writeValueAsString(datalist);
+
+
   }
 
   /** (Jersey) API for retrieving all stairs as JSON List.
    * @return Stairs as JSON List
    */
   @GET
-  @Path("/stairs")
+  @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getStairs() {
 
     String result = "";
     try {
-      result = getData(Stairs.class);
+      result = getData(Obstacle.class);
 
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
@@ -87,108 +94,6 @@ public class BarriersService {
 
   }
 
-
-  /** (Jersey) API for retrieving all ramps as JSON List.
-   * @return Ramps as JSON List
-   */
-  @GET
-  @Path("/ramps")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getRamps() {
-    String result = "";
-    try {
-      result = getData(Ramp.class);
-
-    } catch (Exception e) {
-      return Response.status(503).entity(e.toString()).build();
-    }
-    return Response.status(200).entity(result).build();
-  }
-
-  /** (Jersey) API for retrieving all unevennesses as JSON List.
-   * @return unevennesses as JSON List
-   */
-  @GET
-  @Path("/unevennesses")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getUnevennesses() {
-    String result = "";
-    try {
-      result = getData(Unevenness.class);
-    } catch (Exception e) {
-      return Response.status(503).entity(e.toString()).build();
-    }
-    return Response.status(200).entity(result).build();
-  }
-
-
-  /** (Jersey) API for retrieving all tightpassages as JSON List.
-   * @return tightpassages as JSON List
-   */
-  @GET
-  @Path("/tightpassages")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getTightPassages() {
-    String result = "";
-    try {
-      result = getData(TightPassage.class);
-    } catch (Exception e) {
-      return Response.status(503).entity(e.toString()).build();
-    }
-    return Response.status(200).entity(result).build();
-  }
-
-
-  /** (Jersey) API for retrieving all elevators as JSON List.
-   * @return elevators as JSON List
-   */
-  @GET
-  @Path("/elevators")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getElevators() {
-    String result = "";
-    try {
-      result = getData(Elevator.class);
-    } catch (Exception e) {
-      return Response.status(503).entity(e.toString()).build();
-    }
-    return Response.status(200).entity(result).build();
-  }
-
-
-  /** (Jersey) API for retrieving all fasttrafficlights as JSON List.
-   * @return fasttrafficlights as JSON List
-   */
-  @GET
-  @Path("/fasttrafficlights")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getFastTrafficLights() {
-    String result = "";
-    try {
-      result = getData(FastTrafficLight.class);
-    } catch (Exception e) {
-      return Response.status(503).entity(e.toString()).build();
-    }
-    return Response.status(200).entity(result).build();
-  }
-
-
-  /** (Jersey) API for retrieving all constructions as JSON List.
-   * @return constructions as JSON List
-   */
-  @GET
-  @Path("/constructions")
-  @Produces(MediaType.APPLICATION_JSON)
-  public Response getConstructions() {
-    String result = "";
-    try {
-      result = getData(Construction.class);
-
-    } catch (Exception e) {
-      return Response.status(503).entity(e.toString()).build();
-    }
-    return Response.status(200).entity(result).build();
-  }
 
   /** (Jersey) API exposes the POST interface.
    * Creates new stairs
