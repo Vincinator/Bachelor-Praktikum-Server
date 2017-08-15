@@ -2,6 +2,7 @@ package bp.server.service;
 
 import bp.common.model.*;
 import bp.common.model.obstacles.Obstacle;
+import bp.common.model.obstacles.Stairs;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -105,10 +106,14 @@ public class BarriersService {
   public Response postNewStairs(Obstacle obstacle) {
     String result = "Obstacle hinzugefügt: " + obstacle;
     try {
-      Session session = getSession();
+      // Session Factory is created only once in the life span of the application. Get it from the Singleton
+      SessionFactory sessionFactory = DatabaseSessionManager.instance().getSessionFactory();
+
+      Session session = sessionFactory.openSession();
       session.beginTransaction();
       session.save(obstacle);
       session.getTransaction().commit();
+
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
     }
