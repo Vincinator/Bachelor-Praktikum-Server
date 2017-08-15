@@ -77,7 +77,7 @@
 
         <groupId>com.github.Vincinator</groupId>
         <artifactId>BP-Common</artifactId>
-        <version>c52abdc556</version>
+        <version>3165995277</version>
         <scope>compile</scope>
     </dependency>
     <dependency>
