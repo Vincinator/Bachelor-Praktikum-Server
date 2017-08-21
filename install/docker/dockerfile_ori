@@ -1,0 +1,21 @@
+FROM vincinator/bp
+MAINTAINER Vincent Riesop (Vincent.Riesop@yahoo.com)
+
+RUN apt-get update --fix-missing
+RUN apt-get install -y postgresql-9.5 postgresql-contrib-9.5 sudo default-jre tomcat8 wget vim
+
+COPY install.sh /opt/
+COPY ROOT.war /opt/ROOT.war
+COPY hessen-latest.osm.pbf /opt/
+
+RUN service postgresql start && \
+            service postgresql start && \
+            su postgres -c "createdb hibernatedb --owner postgres"  && \
+            sudo -u postgres psql -U postgres -d postgres -c "alter user postgres with password 'password';" && \
+            sudo rm -rf /var/lib/tomcat8/webapps/ROOT && \
+            sudo cp /opt/ROOT.war /var/lib/tomcat8/webapps/ && \
+            sudo chown tomcat8:tomcat8 /var/lib/tomcat8/webapps/ROOT.war && \
+
+            service postgresql stop
+
+EXPOSE 8080
