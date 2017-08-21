@@ -1,11 +1,12 @@
 FROM vincinator/bp
 MAINTAINER Vincent Riesop (Vincent.Riesop@yahoo.com)
 
-RUN apt-get update --fix-missing && apt-get install -y postgresql-9.5 postgresql-contrib-9.5 postgresql-9.5-postgis-2.2 sudo default-jre tomcat8 wget vim osmosis
+RUN apt-get update --fix-missing
+RUN apt-get install -y postgresql-9.5 postgresql-contrib-9.5 sudo default-jre tomcat8 wget vim
 
 COPY install.sh /opt/
 COPY ROOT.war /opt/ROOT.war
-COPY planet-latest.osm.pbf /opt/
+COPY hessen-latest.osm.pbf /opt/
 
 RUN service postgresql start && \
             service postgresql start && \
@@ -14,17 +15,7 @@ RUN service postgresql start && \
             sudo rm -rf /var/lib/tomcat8/webapps/ROOT && \
             sudo cp /opt/ROOT.war /var/lib/tomcat8/webapps/ && \
             sudo chown tomcat8:tomcat8 /var/lib/tomcat8/webapps/ROOT.war && \
-# Creating OSM Database
-            su postgres -c "createdb osm --owner postgres"  && \
-            psql -d osm 'CREATE EXTENSION postgis; CREATE EXTENSION hstore;' && \
-            psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6.sql && \
-            psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_action.sql && \
-            psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_bbox.sql && \
-            psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_linestring.sql && \
-            osmosis --read-pbf /opt/planet-latest.osm.pbf --log-progress --write-pgsql database=osm && \
 
             service postgresql stop
-
-
 
 EXPOSE 8080

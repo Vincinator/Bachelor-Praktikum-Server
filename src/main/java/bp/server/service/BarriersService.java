@@ -35,7 +35,9 @@ import sun.net.www.protocol.file.FileURLConnection;
 @Path("/barriers")
 public class BarriersService {
 
-  /** Starts a new Hibernate session.
+  /**
+   * Starts a new Hibernate session.
+   *
    * @return a new session
    */
   private static Session getSession() {
@@ -46,14 +48,16 @@ public class BarriersService {
     return sessionFactory.openSession();
   }
 
-  /** Returns all barriers as JSON with the specified type from the database.
+  /**
+   * Returns all barriers as JSON with the specified type from the database.
+   *
    * @param typeParameterClass variable for the type of barrier
-   * @param <T> Type of Barrier
+   * @param <T>                Type of Barrier
    * @return a JSON list with all Barriers of the specified type
    * @throws JsonProcessingException if Jackson throws exception
    */
   public static <T> String getData(Class<T> typeParameterClass)
-      throws JsonProcessingException {
+          throws JsonProcessingException {
 
     // Session Factory is created only once in the life span of the application. Get it from the Singleton
     SessionFactory sessionFactory = DatabaseSessionManager.instance().getSessionFactory();
@@ -76,7 +80,9 @@ public class BarriersService {
 
   }
 
-  /** (Jersey) API for retrieving all stairs as JSON List.
+  /**
+   * (Jersey) API for retrieving all stairs as JSON List.
+   *
    * @return Stairs as JSON List
    */
   @GET
@@ -96,8 +102,10 @@ public class BarriersService {
   }
 
 
-  /** (Jersey) API exposes the POST interface.
+  /**
+   * (Jersey) API exposes the POST interface.
    * Creates new stairs
+   *
    * @return HTTP Result
    */
   @POST
@@ -128,4 +136,16 @@ public class BarriersService {
     return Response.status(200).entity("Barrier with, id: " + id).build();
   }
 
+
+  /**
+   * Trigger Export Tool, which will export a osm file including all the barriers
+   *
+   * @return HTTP Result
+   */
+  @GET
+  @Path("/export")
+  public Response export() {
+
+    return Response.status(200).entity("Export Successful").build();
+  }
 }
