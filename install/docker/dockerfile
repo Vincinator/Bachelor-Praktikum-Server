@@ -16,12 +16,12 @@ RUN service postgresql start && \
             sudo chown tomcat8:tomcat8 /var/lib/tomcat8/webapps/ROOT.war && \
 # Creating OSM Database
             su postgres -c "createdb osm --owner postgres"  && \
-            sudo -u postgres psql -d osm 'CREATE EXTENSION postgis; CREATE EXTENSION hstore;' && \
-            sudo -u postgres psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6.sql && \
-            sudo -u postgres psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_action.sql && \
-            sudo -u postgres psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_bbox.sql && \
-            sudo -u postgres psql -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_linestring.sql && \
-            osmosis --read-pbf /opt/hessen-latest.osm.pbf --log-progress --write-pgsql database=osm && \
+            sudo -u postgres psql -U postgres -d osm -c 'CREATE EXTENSION postgis; CREATE EXTENSION hstore;' && \
+            sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6.sql && \
+            sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_action.sql && \
+            sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_bbox.sql && \
+            sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_linestring.sql && \
+            osmosis --read-pbf /opt/hessen-latest.osm.pbf --log-progress --write-pgsql database=osm user="postgres" password="password" && \
 
             service postgresql stop
 
