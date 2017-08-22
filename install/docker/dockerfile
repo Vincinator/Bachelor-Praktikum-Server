@@ -5,7 +5,7 @@ RUN apt-get update --fix-missing && apt-get install -y postgresql-9.5 postgresql
 
 COPY install.sh /opt/
 COPY ROOT.war /opt/ROOT.war
-COPY hessen-latest.osm.pbf /opt/
+# COPY hessen-latest.osm.pbf /opt/
 
 RUN service postgresql start && \
            # service postgresql start && \
