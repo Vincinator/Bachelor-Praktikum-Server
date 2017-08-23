@@ -144,8 +144,9 @@ public class BarriersService {
    */
   @GET
   @Path("/export")
-  public Response export() {
+  @Produces(MediaType.TEXT_HTML)
+  public String export() {
 
-    return Response.status(200).entity("Export Successful").build();
+    return "<html> <title>Export Tool</title><body><h1>Export Tool is here.</body></h1></html>" ;
   }
 }
