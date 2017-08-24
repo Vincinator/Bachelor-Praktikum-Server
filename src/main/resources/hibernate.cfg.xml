@@ -35,7 +35,7 @@
         <!-- DEBUG: Drop and re-create the database schema on startup-->
         <!-- Deaktiviere folgende Property um Daten in Datenbank zu persistieren-->
         <!-- hbm2ddl.auto auto validates and exports schema to the database once SessionFactory is created-->
-        <property name="hbm2ddl.auto">validate</property>
+        <property name="hbm2ddl.auto">update</property>
         <mapping class="bp.common.model.obstacles.Obstacle"/>
         <mapping class="bp.common.model.obstacles.Stairs"/>
         <mapping class="bp.common.model.obstacles.Ramp"/>

@@ -146,7 +146,9 @@ public class BarriersService {
   @Path("/export")
   @Produces(MediaType.TEXT_HTML)
   public String export() {
+    ExportTool.getInstance().writeInOsmDatabase();
 
-    return "<html> <title>Export Tool</title><body><h1>Export Tool is here.</body></h1></html>" ;
+    return "<html> <title>Export Tool</title><body><h1>All the Obstacles are added" +
+            "to the OSM Database. Run ExportOsmFile.sh to export an osm file.</body></h1></html>" ;
   }
 }
