@@ -1,6 +1,8 @@
 package bp.server.service;
 
 import bp.common.model.obstacles.*;
+import bp.common.model.ways.Node;
+import bp.common.model.ways.Way;
 import bp.server.exceptions.SequenceIDNotFoundException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,8 +30,10 @@ import java.util.Date;
  */
 public class ExportTool {
     private long nextPossibleNodeId;
+    private long nextPossibleWayId;
     private static volatile ExportTool instance;
     private Connection c;
+    private Connection hibernate_con;
     private String current_time;
     private Timestamp current_timestamp;
 
@@ -45,13 +49,28 @@ public class ExportTool {
         Date now = calendar.getTime();
         current_timestamp = new Timestamp(now.getTime());
         try {
-            Statement stmt = c.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT max(id) FROM nodes");
+            Class.forName("org.postgresql.Driver");
+            hibernate_con = DriverManager
+                    .getConnection("jdbc:postgresql://localhost:5432/hibernatedb","postgres","password");
+            hibernate_con.setAutoCommit(false);
+            System.out.println("Hibernate Connected.");
+
+            Statement stmt1 = c.createStatement();
+            ResultSet rs = stmt1.executeQuery("SELECT max(id) FROM nodes");
             rs.next();
             this.nextPossibleNodeId = rs.getLong("max")+1 ;
             rs.close();
-            stmt.close();
+            stmt1.close();
+
+            Statement stmt2 = c.createStatement();
+            ResultSet rs2 = stmt2.executeQuery("SELECT max(id) FROM ways");
+            rs2.next();
+            this.nextPossibleWayId = rs2.getLong("max")+1 ;
+            rs2.close();
+            stmt2.close();
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -64,93 +83,19 @@ public class ExportTool {
     }
 
     /**
-     * @return a linked list of all Obstacle from hibernatedb
+     * the first method from Exporttool to be executed
      */
-    public List<Obstacle> getAllObstacles(){
-        // Session Factory is created only once in the life span of the application. Get it from the Singleton
-        SessionFactory sessionFactory = DatabaseSessionManager.instance().getSessionFactory();
-
-        Session session = sessionFactory.openSession();
-
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<Obstacle> criteria = builder.createQuery(Obstacle.class);
-        Root<Obstacle> root = criteria.from(Obstacle.class);
-        criteria.select(root);
-        List<Obstacle> datalist = session.createQuery(criteria).getResultList();
-        session.close();
-
-        //TODO remove println
-        System.out.println("Number of Obstacles before check:"+datalist.size());
-        PreparedStatement select_obstacle = null;
-        String sql_select_obstacle = "SELECT Count(id) FROM nodes WHERE id = ? ;";
-        try {
-            select_obstacle = c.prepareStatement(sql_select_obstacle);
-            Iterator<Obstacle> iter = datalist.iterator();
-            while(iter.hasNext()){
-                Obstacle o = iter.next();
-                if(obstacleExistInDB(o, select_obstacle)) iter.remove();
-            }
-            if(select_obstacle != null) select_obstacle.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Number of Obstacles after check:"+datalist.size());
-        return datalist;
-    }
-
-    /**
-     * check if Obstacle o already exist in Database OSM
-     * @param o
-     * @param pstmt
-     * @return
-     */
-    private boolean obstacleExistInDB(Obstacle o, PreparedStatement pstmt) throws SQLException {
-        int count = 0;
-        pstmt.setLong(1, o.getId());
-        ResultSet rs = pstmt.executeQuery();
-        if(rs.next()) count = rs.getInt(1);
-        if(rs != null) rs.close();
-        return count > 0;
-    }
-
-    /**
-     * update the right IDs for all Obstacles POJO corresponding to osm DB
-     * @param obslist list of obstacles retrieved from hibernatedb
-     */
-    public void updateIdsAllObstacles(List<Obstacle> obslist){
-        Connection hibernate_con = null;
-        String sql_update_id = "UPDATE obstacle SET id = ? WHERE id = ? ;";
-        PreparedStatement pstmt;
-        try{
-            Class.forName("org.postgresql.Driver");
-            hibernate_con = DriverManager
-                    .getConnection("jdbc:postgresql://localhost:5432/hibernatedb","postgres","password");
-            hibernate_con.setAutoCommit(false);
-            System.out.println("Hibernate Connected.");
-            pstmt = hibernate_con.prepareStatement(sql_update_id);
-            for(Obstacle o:obslist){
-                pstmt.setLong(1, nextPossibleNodeId);
-                pstmt.setLong(2, o.getId());
-                pstmt.execute();
-                o.setId(nextPossibleNodeId);
-                this.nextPossibleNodeId++;
-            }
-            pstmt.close();
-            hibernate_con.commit();
-            hibernate_con.close();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        System.out.println("UPDATE OBSTACLE ID COMPLETED.");
+    public void startExportProcess(){
+        writeObstaclesInOsmDatabase();
+        writeWaysInOSMDatabase();
+        closeUpAllConnections();
     }
 
     /**
      * write all the Obstacle Objects retrieved from hibernatedb in osm DB
      */
-    public void writeInOsmDatabase(){
+    private void writeObstaclesInOsmDatabase(){
+        //TODO check if insert Obstacle working, not tested yet after small changes
         List<Obstacle> obstacleList = getAllObstacles();
         if(obstacleList.isEmpty()) return;
         System.out.println("Number of Obstacles: " + obstacleList.size());
@@ -181,7 +126,7 @@ public class ExportTool {
             insertWay_Nodes = c.prepareStatement(sql_insertWay_Nodes);
             getSequenceId = c.prepareStatement(sql_getSequenceId);
             for(Obstacle o:obstacleList){
-                insertInTableNode(o,updateNodes);
+                insertObstacleInTableNode(o,updateNodes);
                 updateTableWays(o,updateWays);
                 updateTableWay_nodes(o,updateWay_Nodes, updateWay_Nodes2, insertWay_Nodes, getSequenceId);
             }
@@ -192,7 +137,6 @@ public class ExportTool {
             insertWay_Nodes.close();
             getSequenceId.close();
             c.commit();
-            c.close();
             System.out.println("UPDATE OSM DB COMPLETED");
         } catch (SQLException e){
             e.printStackTrace();
@@ -208,12 +152,54 @@ public class ExportTool {
     }
 
     /**
+     * @return a linked list of all Obstacle from hibernatedb
+     */
+    private List<Obstacle> getAllObstacles(){
+        List<Obstacle> datalist = BarriersService.getDataAsList(Obstacle.class);
+
+        //TODO remove println
+        System.out.println("Number of Obstacles before check:"+datalist.size());
+        Iterator<Obstacle> iter = datalist.iterator();
+        while(iter.hasNext()){
+            Obstacle o = iter.next();
+            if(o.getOsm_id() != 0) iter.remove();
+        }
+
+        System.out.println("Number of Obstacles after check:"+datalist.size());
+        return datalist;
+    }
+
+    /**
+     * update the right IDs for all Obstacles POJO corresponding to osm DB
+     * @param obslist list of obstacles retrieved from hibernatedb
+     */
+    private void updateIdsAllObstacles(List<Obstacle> obslist){
+        String sql_update_id = "UPDATE obstacle SET osm_id = ? WHERE id = ? ;";
+        PreparedStatement pstmt;
+        try{
+            pstmt = hibernate_con.prepareStatement(sql_update_id);
+            for(Obstacle o:obslist){
+                pstmt.setLong(1, nextPossibleNodeId);
+                pstmt.setLong(2, o.getId());
+                pstmt.execute();
+                o.setOsm_id(nextPossibleNodeId);
+                this.nextPossibleNodeId++;
+            }
+            pstmt.close();
+            hibernate_con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("UPDATE OBSTACLE ID COMPLETED.");
+    }
+
+    /**
      * insert object o in node Table
      * @param o
      * @param pstmt a prepared statement: id, version, userID, tstamp, changesetID, tags, long and lat are to be filled in
      */
-    private void insertInTableNode(Obstacle o, PreparedStatement pstmt) {
-        long id = o.getId();
+    private void insertObstacleInTableNode(Obstacle o, PreparedStatement pstmt) {
+        long id = o.getOsm_id();
         int version = -1;
         int userID = -1;
         long changesetID = -1;
@@ -274,9 +260,10 @@ public class ExportTool {
         for(Long n:array){
             list_nodes.add(n);
         }
-        list_nodes.add(list_nodes.indexOf(o.getId_firstnode()) + 1, o.getId());
+        list_nodes.add(list_nodes.indexOf(o.getId_firstnode()) + 1, o.getOsm_id());
         return list_nodes.toArray(tmp);
     }
+
 
     /**
      * Update Table way_nodes. Important is to update the sequence_id of each affected item
@@ -287,10 +274,10 @@ public class ExportTool {
      * @param getseqstmt Prepare SELECT Statement to retrieve sequence ID
      */
     private void updateTableWay_nodes(Obstacle o, PreparedStatement updatestmt, PreparedStatement updatestmt2,
-            PreparedStatement insertstmt , PreparedStatement getseqstmt) {
+                                      PreparedStatement insertstmt , PreparedStatement getseqstmt) {
         long sequence_id_firstNode;
         long way_id = o.getId_way();
-        long obstacle_id = o.getId();
+        long obstacle_id = o.getOsm_id();
         long sequence_id_obstacle;
         try {
             getseqstmt.setLong(1, o.getId_way());
@@ -324,66 +311,245 @@ public class ExportTool {
 
     }
 
+    /**
+     * write all the ways in OSM Database
+     */
+    private void writeWaysInOSMDatabase(){
+        List<Way> waysList = getAllWays();
+        if(waysList.isEmpty()) return;
+        System.out.println("Number of Ways: " + waysList.size());
+        updateIdsAllWays(waysList);
+        try {
+            PreparedStatement insertInTableWays = null;
+            PreparedStatement insertInTableWay_nodes = null;
+            PreparedStatement insertInTableNodes = null;
+
+            String sql_insertInTableWays = "INSERT INTO ways (id, version, user_id, tstamp, changeset_id, tags, nodes) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?);";
+            String sql_insertInTableWay_nodes = "INSERT INTO way_nodes (way_id, node_id, sequence_id) "
+                    + "VALUES (?, ?, ?);";
+            String sql_insertInTableNodes = "INSERT INTO nodes (id, version, user_id, tstamp, changeset_id, tags, geom) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ST_SetSRID(ST_MakePoint(?, ?), 4326));";
+
+            insertInTableWays = c.prepareStatement(sql_insertInTableWays);
+            insertInTableWay_nodes = c.prepareStatement(sql_insertInTableWay_nodes);
+            insertInTableNodes = c.prepareStatement(sql_insertInTableNodes);
+
+            for(Way w:waysList){
+                insertWayInTableWay(w, insertInTableWays);
+                insertWayInTableWayNodes(w, insertInTableWay_nodes);
+                insertNodeInTableNodes(w, insertInTableNodes);
+            }
+            insertInTableWays.close();
+            insertInTableWay_nodes.close();
+            insertInTableNodes.close();
+            c.commit();
+            System.out.println("UPDATE OSM DB COMPLETED");
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private List<Way> getAllWays() {
+        List<Way> datalist = BarriersService.getDataAsList(Way.class);
+
+        //TODO remove println
+        System.out.println("Number of Ways before check:"+datalist.size());
+        Iterator<Way> iter = datalist.iterator();
+        while(iter.hasNext()){
+            Way w = iter.next();
+            if(w.getOsm_id() != 0) iter.remove();
+        }
+        System.out.println("Number of Ways after check:"+datalist.size());
+        return datalist;
+    }
+
+
+    /**
+     * Update all osm_id of retrieved Way objects and IDs of their nodes in hibernateDB
+     * to save osm_id in hibernateDB as well and to show that certain way and node are already saved in osm DB
+     * @param waysList
+     */
+    private void updateIdsAllWays(List<Way> waysList) {
+        PreparedStatement update_way_id;
+        PreparedStatement update_node_id;
+        String sql_update_way_id = "UPDATE ways SET osm_id = ? WHERE id = ? ;";
+        String sql_update_node_id = "UPDATE nodes SET osm_id = ? WHERE id = ? ;";
+
+        try{
+            update_way_id = hibernate_con.prepareStatement(sql_update_way_id);
+            update_node_id = hibernate_con.prepareStatement(sql_update_node_id);
+            for(Way w:waysList){
+                update_way_id.setLong(1, nextPossibleWayId);
+                update_way_id.setLong(2, w.getId());
+                update_way_id.execute();
+                w.setOsm_id(nextPossibleWayId);
+                this.nextPossibleWayId++;
+
+                List<Node> nodesList = w.getNodes();
+                for(Node n: nodesList){
+                    update_node_id.setLong(1, nextPossibleNodeId);
+                    update_node_id.setLong(2, n.getId());
+                    update_node_id.execute();
+                    n.setOsm_id(nextPossibleNodeId);
+                    this.nextPossibleNodeId++;
+                }
+            }
+            update_way_id.close();
+            update_node_id.close();
+            hibernate_con.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("UPDATE WAY and NODE ID COMPLETED.");
+    }
+
+    private void insertWayInTableWay(Way w, PreparedStatement insertInTableWays) {
+        long id = w.getOsm_id();
+        int version = -1;
+        int userID = -1;
+        long changesetID = -1;
+        String tags = getHStoreValue(w);
+        List<Node> nodesList = w.getNodes();
+        Long[] nodeIDsArray = new Long[nodesList.size()];
+        for(int i = 0; i < nodeIDsArray.length; i++){
+            nodeIDsArray[i] = Long.valueOf(nodesList.get(i).getOsm_id());
+        }
+        try {
+            Array nodes_result = c.createArrayOf("BIGINT", nodeIDsArray);
+            insertInTableWays.setLong(1,id);
+            insertInTableWays.setInt(2,version);
+            insertInTableWays.setInt(3,userID);
+            insertInTableWays.setTimestamp(4,current_timestamp);
+            insertInTableWays.setLong(5, changesetID);
+            insertInTableWays.setObject(6, tags,Types.OTHER);
+            insertInTableWays.setArray(7,nodes_result);
+            insertInTableWays.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertWayInTableWayNodes(Way w, PreparedStatement insertInTableWay_nodes) {
+        long id = w.getOsm_id();
+        int index = 0;
+        for(Node n:w.getNodes()){
+            try {
+                insertInTableWay_nodes.setLong(1, id);
+                insertInTableWay_nodes.setLong(2, n.getOsm_id());
+                insertInTableWay_nodes.setInt(3, index);
+                index++;
+                insertInTableWay_nodes.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void insertNodeInTableNodes(Way w, PreparedStatement insertInTableNodes) {
+        int version = -1;
+        int userID = -1;
+        long changesetID = -1;
+
+        for(Node n:w.getNodes()){
+            try {
+                insertInTableNodes.setLong(1, n.getOsm_id());
+                insertInTableNodes.setInt(2, version);
+                insertInTableNodes.setInt(3, userID);
+                insertInTableNodes.setTimestamp(4, current_timestamp);
+                insertInTableNodes.setLong(5, changesetID);
+                insertInTableNodes.setObject(6, getHStoreValue(n),Types.OTHER);
+                insertInTableNodes.setDouble(7, n.getLongitude());
+                insertInTableNodes.setDouble(8, n.getLatitude());
+                insertInTableNodes.execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /**
      *
-     * @param o an Obstacle Object
+     * @param ob an Obstacle Object
      * @return a string in HStore format which contains all tag of the Obstacle o
      */
-    private String getHStoreValue(Obstacle o){
+    private String getHStoreValue(Object ob){
         // TODO Docu about every single self defined Tags
         HashMap<String,String> tags = new HashMap<>();
-        switch (o.getTypeCode()){
-            case STAIRS:
-                Stairs stair = (Stairs)o;
-                tags.put("barrier","stairs");
-                tags.put("number_of_stairs",String.valueOf(stair.getNumberOfStairs()));
-                tags.put("height_of_stair",String.valueOf(stair.getHeightOfStairs()));
-                tags.put("handle_available",String.valueOf(stair.getHandleAvailable()));
-                break;
-            case RAMP:
-                Ramp ramp = (Ramp)o;
-                tags.put("barrier","ramp");
-                break;
-            case UNEVENNESS:
-                Unevenness uneven = (Unevenness)o;
-                tags.put("barrier","uneveness");
-                tags.put("length", String.valueOf(uneven.getLength()));
-                break;
-            case CONSTRUCTION:
-                Construction constuction = (Construction)o;
-                tags.put("barrier","construction");
-                tags.put("size", String.valueOf(constuction.getSize()));
-                DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                //tags.put("expire", String.valueOf(formatter.format(constuction.getValidUntil())));
-                // TODO Change code in Construction.class, either standard ValidUntil
-                // or set the value while creating obstacle object FRONT END Job
-                tags.put("expire", "2017-08-28");
-                break;
-            case FAST_TRAFFIC_LIGHT:
-                FastTrafficLight tflight = (FastTrafficLight)o;
-                tags.put("barrier","fasttrafficlight");
-                tags.put("duration",String.valueOf(tflight.getDuration()));
-                break;
-            case ELEVATOR:
-                // TODO maybe remove from to attribute from BP.Common
-                Elevator ele = (Elevator)o;
-                tags.put("barrier","elevator");
-                break;
-            case TIGHT_PASSAGE:
-                TightPassage tpass = (TightPassage)o;
-                tags.put("barrier","tightpassage");
-                tags.put("passagewidth", String.valueOf(((TightPassage) o).getWidth()));
-                break;
-            default:
-                break;
+        if(ob instanceof Obstacle){
+            Obstacle o = (Obstacle)ob;
+            switch (o.getTypeCode()){
+                case STAIRS:
+                    Stairs stair = (Stairs)o;
+                    tags.put("barrier","stairs");
+                    tags.put("number_of_stairs",String.valueOf(stair.getNumberOfStairs()));
+                    tags.put("height_of_stair",String.valueOf(stair.getHeightOfStairs()));
+                    tags.put("handle_available",String.valueOf(stair.getHandleAvailable()));
+                    break;
+                case RAMP:
+                    Ramp ramp = (Ramp)o;
+                    tags.put("barrier","ramp");
+                    break;
+                case UNEVENNESS:
+                    Unevenness uneven = (Unevenness)o;
+                    tags.put("barrier","uneveness");
+                    tags.put("length", String.valueOf(uneven.getLength()));
+                    break;
+                case CONSTRUCTION:
+                    Construction construction = (Construction)o;
+                    tags.put("barrier","construction");
+                    tags.put("size", String.valueOf(construction.getSize()));
+                    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                    if (construction.getValidUntil() != null){
+                        tags.put("expire", String.valueOf(formatter.format(construction.getValidUntil())));
+                    }
+                    // TODO Change code in Construction.class, either standard ValidUntil
+                    // or set the value while creating obstacle object FRONT END Job
+                    else tags.put("expire", "2017-08-28");
+                    break;
+                case FAST_TRAFFIC_LIGHT:
+                    FastTrafficLight tflight = (FastTrafficLight)o;
+                    tags.put("barrier","fasttrafficlight");
+                    tags.put("duration",String.valueOf(tflight.getDuration()));
+                    break;
+                case ELEVATOR:
+                    // TODO maybe remove from to attribute from BP.Common
+                    Elevator ele = (Elevator)o;
+                    tags.put("barrier","elevator");
+                    break;
+                case TIGHT_PASSAGE:
+                    TightPassage tpass = (TightPassage)o;
+                    tags.put("barrier","tightpassage");
+                    tags.put("passagewidth", String.valueOf(((TightPassage) o).getWidth()));
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if(ob instanceof Way){
+            Way w = (Way)ob;
+            if(!w.getName().equals("")) tags.put("name",w.getName());
+            tags.put("highway","*");
         }
 
         return HStoreConverter.toString(tags);
     }
 
+
+    /**
+     * close up all opened connections. This is called at last.
+     */
+    private void closeUpAllConnections() {
+        try {
+            c.close();
+            hibernate_con.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
-        ExportTool.getInstance().writeInOsmDatabase();
+        ExportTool.getInstance().startExportProcess();
         System.out.println("DONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
     }
 }

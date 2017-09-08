@@ -44,7 +44,8 @@
         <mapping class="bp.common.model.obstacles.Elevator"/>
         <mapping class="bp.common.model.obstacles.FastTrafficLight"/>
         <mapping class="bp.common.model.obstacles.TightPassage"/>
-
+        <mapping class="bp.common.model.ways.Way"/>
+        <mapping class="bp.common.model.ways.Node"/>
 
     </session-factory>
 </hibernate-configuration>
