@@ -191,7 +191,7 @@ public class BarriersService {
 
 
   @GET
-  @Path("/{id}")
+  @Path("/getObstableById/{id}")
   public Response getObstacleById(@PathParam("id") String id) {
 
     return Response.status(200).entity("Barrier with, id: " + id).build();
