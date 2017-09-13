@@ -34,7 +34,8 @@
 
         <!-- DEBUG: Drop and re-create the database schema on startup-->
         <!-- Deaktiviere folgende Property um Daten in Datenbank zu persistieren-->
-        <property name="hbm2ddl.auto">create-drop</property>
+        <!-- hbm2ddl.auto auto validates and exports schema to the database once SessionFactory is created-->
+        <property name="hbm2ddl.auto">update</property>
         <mapping class="bp.common.model.obstacles.Obstacle"/>
         <mapping class="bp.common.model.obstacles.Stairs"/>
         <mapping class="bp.common.model.obstacles.Ramp"/>
@@ -43,7 +44,8 @@
         <mapping class="bp.common.model.obstacles.Elevator"/>
         <mapping class="bp.common.model.obstacles.FastTrafficLight"/>
         <mapping class="bp.common.model.obstacles.TightPassage"/>
-
+        <mapping class="bp.common.model.ways.Way"/>
+        <mapping class="bp.common.model.ways.Node"/>
 
     </session-factory>
 </hibernate-configuration>

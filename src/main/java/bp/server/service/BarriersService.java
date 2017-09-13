@@ -1,11 +1,21 @@
 package bp.server.service;
 
 import bp.common.model.*;
+import bp.common.model.obstacles.Construction;
 import bp.common.model.obstacles.Obstacle;
 import bp.common.model.obstacles.Stairs;
+import bp.common.model.ways.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -58,7 +68,21 @@ public class BarriersService {
    */
   public static <T> String getData(Class<T> typeParameterClass)
           throws JsonProcessingException {
+    List<T> datalist = getDataAsList(typeParameterClass);
+    ObjectMapper mapper = new ObjectMapper();
+    JavaType listJavaType =
+            mapper.getTypeFactory().constructCollectionType(List.class, typeParameterClass);
 
+    return mapper.writerWithType(listJavaType).writeValueAsString(datalist);
+  }
+
+  /**
+   * return a list of retrieved data in form of a list of Objects
+   * @param typeParameterClass
+   * @param <T>
+   * @return
+   */
+  public static <T> List<T> getDataAsList(Class<T> typeParameterClass){
     // Session Factory is created only once in the life span of the application. Get it from the Singleton
     SessionFactory sessionFactory = DatabaseSessionManager.instance().getSessionFactory();
 
@@ -70,14 +94,7 @@ public class BarriersService {
     criteria.select(root);
     List<T> datalist = session.createQuery(criteria).getResultList();
     session.close();
-
-    ObjectMapper mapper = new ObjectMapper();
-    JavaType listJavaType =
-            mapper.getTypeFactory().constructCollectionType(List.class, typeParameterClass);
-
-    return mapper.writerWithType(listJavaType).writeValueAsString(datalist);
-
-
+    return datalist;
   }
 
   /**
@@ -89,7 +106,6 @@ public class BarriersService {
   @Path("/")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getStairs() {
-
     String result = "";
     try {
       result = getData(Obstacle.class);
@@ -98,7 +114,6 @@ public class BarriersService {
       return Response.status(503).entity(e.toString()).build();
     }
     return Response.status(200).entity(result).build();
-
   }
 
 
@@ -128,6 +143,52 @@ public class BarriersService {
     return Response.status(201).entity(result).build();
   }
 
+  /**
+   * (Jersey) API exposes the POST interface.
+   * Creates new way and save them in the database
+   * @param way
+   * @return
+   */
+  @POST
+  @Path("/ways")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response postNewWay(Way way) {
+    for(Node n:way.getNodes()){
+      n.setWay(way);
+    }
+    String result = "Way hinzugefügt: " + way;
+    try {
+      // Session Factory is created only once in the life span of the application. Get it from the Singleton
+      SessionFactory sessionFactory = DatabaseSessionManager.instance().getSessionFactory();
+      Session session = sessionFactory.openSession();
+      session.beginTransaction();
+      session.save(way);
+      session.getTransaction().commit();
+
+    } catch (Exception e) {
+      return Response.status(503).entity(e.toString()+way.toString()).build();
+    }
+    return Response.status(201).entity(result).build();
+  }
+
+  /**
+   * API to get all the ways objects
+   * @return all Way Objects from Database in JSON Format
+   */
+  @GET
+  @Path("/ways")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getWays() {
+    String result = "";
+    try {
+      result = getData(Way.class);
+
+    } catch (Exception e) {
+      return Response.status(503).entity(e.toString()).build();
+    }
+    return Response.status(200).entity(result).build();
+  }
+
 
   @GET
   @Path("/{id}")
@@ -144,8 +205,74 @@ public class BarriersService {
    */
   @GET
   @Path("/export")
-  public Response export() {
+  @Produces(MediaType.TEXT_HTML)
+  public String export() {
+    ExportTool.getInstance().startExportProcess();
+    return "<html> <title>Export Tool</title><body><h1>All the Obstacles are added" +
+            "to the OSM Database. Run ExportOsmFile.sh to export an osm file.</body></h1></html>" ;
+  }
 
-    return Response.status(200).entity("Export Successful").build();
+  /**
+   * TEST
+   * TODO removed when tested done
+   * TODO tell Deniz to update set Way for each node
+   * @param args
+   */
+  public static void main(String[] args) {
+    double lat1 = 49.877633;
+    double long1 = 8.649615;
+    double lat2 =49.877405;
+    double long2 = 8.649679;
+    double lat3 = 49.876802;
+    double long3 = 8.649559;
+    Node node1 = new Node(lat1,long1);
+    Node node2 = new Node(lat2,long2);
+    Node node3 = new Node(lat3,long3);
+    Node node4 = new Node(lat1,long2);
+    Node node5 = new Node(lat2,long3);
+    Node node6 = new Node(lat3,long1);
+
+    ArrayList<Node> nodes = new ArrayList<Node>();
+    nodes.add(node1); nodes.add(node2); nodes.add(node3);
+    Way road1 = new Way("",nodes);
+    for(Node n: nodes) n.setWay(road1);
+
+    ArrayList<Node> nodes2 =  new ArrayList<>();
+    nodes2.add(node4);nodes2.add(node5);nodes2.add(node6);
+    Way road2 = new Way("",nodes2);
+    for(Node n: nodes2) n.setWay(road2);
+
+    Stairs stairs1 = new Stairs("holy", long1, lat1, 52, 12, true);
+    Construction construction1 = new Construction("nothing", long2, lat2, 100, new java.sql.Date(System.currentTimeMillis()));
+
+
+/*
+    ObjectMapper mapper = new ObjectMapper();
+    String jsonString = "";
+    try {
+      jsonString = mapper.writeValueAsString(road);
+      System.out.println(jsonString);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }*/
+
+    BarriersService bs = new BarriersService();
+    /*bs.postNewWay(road1);
+    bs.postNewWay(road2);
+    bs.postNewStairs(stairs1);
+    bs.postNewStairs(construction1);*/
+
+    List<Way> alist = getDataAsList(Way.class);
+    for(Way w:alist) System.out.println(w.getOsm_id() == 0);;
+
+    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+    List<Obstacle> obslist = getDataAsList(Obstacle.class);
+    for(Obstacle ob:obslist) {
+      System.out.println(ob.toString());
+      if(ob instanceof Construction){
+        Construction cons = (Construction)ob;
+        System.out.printf(String.valueOf(formatter.format(cons.getValidUntil())));
+      }
+    }
   }
 }

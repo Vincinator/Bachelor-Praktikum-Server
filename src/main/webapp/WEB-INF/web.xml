@@ -20,6 +20,7 @@
     </servlet>
 
 
+    <!-- localhost:8080/api/... -->
     <servlet-mapping>
         <servlet-name>jersey</servlet-name>
         <url-pattern>/api/*</url-pattern>
