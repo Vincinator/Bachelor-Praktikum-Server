@@ -3,6 +3,10 @@ MAINTAINER Vincent Riesop (Vincent.Riesop@yahoo.com)
 
 RUN apt-get update --fix-missing && apt-get install -y postgresql-9.5 postgresql-contrib-9.5 postgresql-9.5-postgis-2.2 sudo default-jre tomcat8 wget vim osmosis
 
+# Clean old ROOT.war if already exists
+RUN sudo rm -f /opt/ROOT.war
+RUN sudo rm -f /opt/install.sh
+
 COPY install.sh /opt/
 COPY ROOT.war /opt/ROOT.war
 COPY hessen-latest.osm.pbf /opt/
