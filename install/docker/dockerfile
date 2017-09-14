@@ -6,10 +6,12 @@ RUN apt-get update --fix-missing && apt-get install -y postgresql-9.5 postgresql
 # Clean old ROOT.war if already exists
 RUN sudo rm -f /opt/ROOT.war
 RUN sudo rm -f /opt/install.sh
+RUN sudo rm -f /opz/ExportTool.jar
 
 COPY install.sh /opt/
 COPY ROOT.war /opt/ROOT.war
 COPY hessen-latest.osm.pbf /opt/
+COPY ExportTool.jar /opt/
 
 RUN service postgresql start && \
             service postgresql start && \
