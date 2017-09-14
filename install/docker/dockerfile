@@ -15,7 +15,7 @@ COPY ExportTool.jar /opt/
 
 RUN service postgresql start && \
             service postgresql start && \
-            su postgres -c "createdb hibernatedb --owner postgres"  && \
+            #su postgres -c "createdb hibernatedb --owner postgres"  && \
             sudo -u postgres psql -U postgres -d postgres -c "alter user postgres with password 'password';" && \
             sudo rm -rf /var/lib/tomcat8/webapps/ROOT && \
             sudo cp /opt/ROOT.war /var/lib/tomcat8/webapps/ && \
@@ -24,10 +24,7 @@ RUN service postgresql start && \
             su postgres -c "createdb osm --owner postgres"  && \
             sudo -u postgres psql -U postgres -d osm -c 'CREATE EXTENSION postgis; CREATE EXTENSION hstore;' && \
             sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6.sql && \
-            sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_action.sql && \
-            sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_bbox.sql && \
-            sudo -u postgres psql -U postgres -d osm -f /usr/share/doc/osmosis/examples/pgsnapshot_schema_0.6_linestring.sql && \
-           osmosis --read-pbf /opt/hessen-latest.osm.pbf --log-progress --write-pgsql database=osm user="postgres" password="password" && \
+            osmosis --read-pbf /opt/hessen-latest.osm.pbf --log-progress --write-pgsql database=osm user="postgres" password="password" && \
 
             service postgresql stop
 
