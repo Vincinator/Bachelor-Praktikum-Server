@@ -13,19 +13,11 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.crypto.Data;
@@ -183,6 +175,44 @@ public class BarriersService {
     try {
       result = getData(Way.class);
 
+    } catch (Exception e) {
+      return Response.status(503).entity(e.toString()).build();
+    }
+    return Response.status(200).entity(result).build();
+  }
+
+  /**
+   * API to get all the ways object around a certain coordinates with radius
+   * @param lat1
+   * @param long1
+   * @param radius
+   * @return
+   */
+  @GET
+  @Path("/ways/radius")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getWaysInRadius(
+          @QueryParam("lat1") double lat1,
+          @QueryParam("long1") double long1,
+          @QueryParam("radius") int radius) {
+    List<Way> waysList = getDataAsList(Way.class);
+    List<Way> waysResult = new ArrayList<Way>();
+    for(Way w:waysList){
+      for(Node n:w.getNodes()){
+        if(CoordinationsDistance.distFrom(lat1,long1,n.getLatitude(),n.getLongitude()) <= radius){
+          waysResult.add(w);
+          break;
+        }
+      }
+    }
+    String result = "";
+    ObjectMapper mapper = new ObjectMapper();
+    JavaType listJavaType =
+            mapper.getTypeFactory().constructCollectionType(List.class, Way.class);
+    try {
+      result = mapper.writerWithType(listJavaType).writeValueAsString(waysResult);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
     }
