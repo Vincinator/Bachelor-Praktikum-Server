@@ -227,20 +227,6 @@ public class BarriersService {
     return Response.status(200).entity("Barrier with, id: " + id).build();
   }
 
-
-  /**
-   * Trigger Export Tool, which will export a osm file including all the barriers
-   *
-   * @return HTTP Result
-   */
-  @GET
-  @Path("/export")
-  @Produces(MediaType.TEXT_HTML)
-  public String export() {
-    ExportTool.getInstance().startExportProcess();
-    return "<html> <title>Export Tool</title><body><h1>All the Obstacles are added" +
-            "to the OSM Database. Run ExportOsmFile.sh to export an osm file.</body></h1></html>" ;
-  }
   public static void main(String[] args) {
     double lat1 = 49.877633;
     double long1 = 8.649615;
@@ -278,13 +264,14 @@ public class BarriersService {
     nodes3.add(node8);
     Way road3 = new Way("",nodes3);
     for (Node n : nodes3) n.setWay(road3);
+    DatabaseSessionManager.instance().getSessionFactory();
 
-
+/*
     Stairs stairs1 = new Stairs("holy", long1, lat1, 52, 12, true);
     Construction construction1 = new Construction("nothing", long2, lat2, 100, new java.sql.Date(System.currentTimeMillis()));
 
 
-/*
+
     ObjectMapper mapper = new ObjectMapper();
     String jsonString = "";
     try {
@@ -292,14 +279,14 @@ public class BarriersService {
       System.out.println(jsonString);
     } catch (JsonProcessingException e) {
       e.printStackTrace();
-    }*/
+    }
 
     BarriersService bs = new BarriersService();
     bs.postNewWay(road3);
-    /*bs.postNewWay(road1);
+    bs.postNewWay(road1);
     bs.postNewWay(road2);
     bs.postNewStairs(stairs1);
-    bs.postNewStairs(construction1);*/
+    bs.postNewStairs(construction1);
 
     List<Way> alist = getDataAsList(Way.class);
     for (Way w : alist) System.out.println(w.getOsm_id() == 0);
@@ -312,6 +299,6 @@ public class BarriersService {
         Construction cons = (Construction) ob;
         System.out.printf(String.valueOf(formatter.format(cons.getValidUntil())));
       }
-    }
+    }*/
   }
 }
