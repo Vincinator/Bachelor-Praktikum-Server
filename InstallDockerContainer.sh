@@ -17,6 +17,13 @@ echo 'DEBUG: Start Dockerbuilding'
 # For Development and Testing purposes we have limited our geodata to germany/hessen
 # wget http://download.geofabrik.de/europe/germany/hessen-latest.osm.pbf
 
+# In order to Export the database, the ExportTool.jar must be compiled.
+# https://github.com/skisssbb/BP-ExportTool/
+git clone https://github.com/skisssbb/BP-ExportTool/
+cd BP-ExportTool
+mvn clean package
+mv target/ExportTool.jar ../install/docker
+
 docker build -t bpserver:latest . 
 echo 'DEBUG: End Dockerbuilding'
 
