@@ -11,6 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -23,12 +27,18 @@ import javax.ws.rs.core.Response;
 import javax.xml.crypto.Data;
 
 import io.swagger.annotations.Api;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
+import org.hibernate.query.Query;
 import sun.net.www.protocol.file.FileURLConnection;
+
+import static java.lang.Long.max;
 
 /**
  *
@@ -36,6 +46,8 @@ import sun.net.www.protocol.file.FileURLConnection;
 @Api
 @Path("/barriers")
 public class BarriersService {
+  public static long nextPossibleNodeID = 0;
+  public static long nextPossibleWayID = 0;
 
   /**
    * Starts a new Hibernate session.
@@ -48,6 +60,68 @@ public class BarriersService {
     config.configure("hibernate.cfg.xml");
     SessionFactory sessionFactory = config.buildSessionFactory();
     return sessionFactory.openSession();
+  }
+
+  /**
+   * compare max ID from OSM DB with Hibernate DB and choose the max one
+   */
+  private void getNextPossibleNodeAndWayID() {
+    // TODO Test if ID distributed correctly
+    long osm_maxNodeID;
+    long osm_maxWayID;
+    long hibernate_maxNodeID;
+    long hibernate_maxWayID;
+    long hibernate_maxObstacleIDStart;
+    long hibernate_maxObstacleIDEnd;
+
+    Connection postgres_connection = PostgreSQLJDBC.getInstance().getConnection();
+
+    Statement stmt1 = null;
+    try {
+      // Get Informations from OSM Database
+      stmt1 = postgres_connection.createStatement();
+      ResultSet rs = stmt1.executeQuery("SELECT max(id) FROM nodes");
+      rs.next();
+      osm_maxNodeID = rs.getLong("max") ;
+      rs.close();
+      stmt1.close();
+
+      Statement stmt2 = postgres_connection.createStatement();
+      ResultSet rs2 = stmt2.executeQuery("SELECT max(id) FROM ways");
+      rs2.next();
+      osm_maxWayID = rs2.getLong("max");
+      rs2.close();
+      stmt2.close();
+
+      // Get Information from Hibernate Database
+
+      SessionFactory sessionFactory = DatabaseSessionManager.instance().getSessionFactory();
+      Session session = sessionFactory.openSession();
+      Query query_node = session.createQuery("SELECT max(N.osm_id) FROM Node N");
+      Long maxNodeID = (Long) query_node.list().get(0);
+      if(maxNodeID != null) hibernate_maxNodeID = maxNodeID;
+      else hibernate_maxNodeID = 0;
+
+      Query query_obstacle_start = session.createQuery("SELECT max(O.osm_id_start) FROM Obstacle O");
+      Long maxObstacleIDStart = (Long) query_obstacle_start.list().get(0);
+      if(maxObstacleIDStart != null) hibernate_maxObstacleIDStart = maxObstacleIDStart;
+      else hibernate_maxObstacleIDStart = 0;
+
+      Query query_obstacle_end = session.createQuery("SELECT max(O.osm_id_end) FROM Obstacle O");
+      Long maxObstacleIDEnd = (Long) query_obstacle_end.list().get(0);
+      if(maxObstacleIDEnd != null) hibernate_maxObstacleIDEnd = maxObstacleIDEnd;
+      else hibernate_maxObstacleIDEnd = 0;
+
+      Query query_way = session.createQuery("SELECT max(W.osm_id) FROM Way W");
+      Long maxWayID = (Long) query_way.list().get(0);
+      if(maxWayID != null) hibernate_maxWayID = maxWayID;
+      else hibernate_maxWayID = 0;
+
+      nextPossibleNodeID = max(max(max(osm_maxNodeID, hibernate_maxNodeID),hibernate_maxObstacleIDStart),hibernate_maxObstacleIDEnd)+1;
+      nextPossibleWayID = max(osm_maxWayID, hibernate_maxWayID)+1;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -119,6 +193,17 @@ public class BarriersService {
   @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postNewStairs(Obstacle obstacle) {
+    // update next possible NodeID if necessary
+    if(nextPossibleNodeID == 0) getNextPossibleNodeAndWayID();
+
+    // Give new Obstacle new OSM ID for Node
+    obstacle.setOsm_id_start(nextPossibleNodeID);
+    nextPossibleNodeID++;
+    if(obstacle.getLatitudeEnd() != 0 && obstacle.getLongitudeEnd() != 0){
+      obstacle.setOsm_id_end(nextPossibleNodeID);
+      nextPossibleNodeID++;
+    }
+
     String result = "Obstacle hinzugefügt: " + obstacle;
     try {
       // Session Factory is created only once in the life span of the application. Get it from the Singleton
@@ -135,6 +220,7 @@ public class BarriersService {
     return Response.status(201).entity(result).build();
   }
 
+
   /**
    * (Jersey) API exposes the POST interface.
    * Creates new way and save them in the database
@@ -145,8 +231,15 @@ public class BarriersService {
   @Path("/ways")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postNewWay(Way way) {
+    if(nextPossibleWayID == 0 || nextPossibleNodeID == 0) getNextPossibleNodeAndWayID();
+
+    way.setOsm_id(nextPossibleWayID);
+    nextPossibleWayID++;
+
     for(Node n:way.getNodes()){
+      n.setOsm_id(nextPossibleNodeID);
       n.setWay(way);
+      nextPossibleNodeID++;
     }
     String result = "Way hinzugefügt: " + way;
     try {
@@ -264,9 +357,15 @@ public class BarriersService {
     nodes3.add(node8);
     Way road3 = new Way("",nodes3);
     for (Node n : nodes3) n.setWay(road3);
-    DatabaseSessionManager.instance().getSessionFactory();
-
+    BarriersService bs = new BarriersService();
+    bs.postNewWay(road3);
 /*
+    Stairs stair2 = new Stairs();
+    Stairs stair1 = new Stairs("sickness",long1, lat1, long2, lat2, 2, "yes");
+    BarriersService bs = new BarriersService();
+    bs.postNewStairs(stair1);
+
+
     Stairs stairs1 = new Stairs("holy", long1, lat1, 52, 12, true);
     Construction construction1 = new Construction("nothing", long2, lat2, 100, new java.sql.Date(System.currentTimeMillis()));
 
