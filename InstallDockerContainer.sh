@@ -23,6 +23,7 @@ git clone https://github.com/skisssbb/BP-ExportTool/
 cd BP-ExportTool
 mvn clean package
 mv target/ExportTool.jar ../
+cd ..
 
 docker build -t bpserver:latest . 
 echo 'DEBUG: End Dockerbuilding'
