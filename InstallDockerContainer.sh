@@ -1,6 +1,8 @@
 #!/bin/bash
 
 
+
+
 mvn package
 mv target/ROOT.war install/docker/ROOT.war
 
@@ -10,6 +12,11 @@ docker stop bpserver || true
 docker rm bpserver || true
 
 echo 'DEBUG: Start Dockerbuilding'
+
+# In order to test the server, you need geodata. 
+# For Development and Testing purposes we have limited our geodata to germany/hessen
+# wget http://download.geofabrik.de/europe/germany/hessen-latest.osm.pbf
+
 docker build -t bpserver:latest . 
 echo 'DEBUG: End Dockerbuilding'
 
