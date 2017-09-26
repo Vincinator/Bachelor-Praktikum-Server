@@ -44,12 +44,12 @@ public class ManuallTests {
 
 
         // 2 Phase - A Stair on our street
-        Stairs stair2 = new Stairs("Rossdörfe", 8.66859,49.86887, 8.66874, 49.86915, 5, "");
+        /*Stairs stair2 = new Stairs("Rossdörfe", 8.66859,49.86887, 8.66874, 49.86915, 5, "");
         stair2.setWidth(10);
         stair2.setTactile_paving("yes");
         stair2.setId_way(511515717);
         stair2.setId_firstnode(5003906400L);
         stair2.setId_lastnode(5003906401L);
-        bs.postNewStairs(stair2);
+        bs.postNewStairs(stair2);*/
     }
 }

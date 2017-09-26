@@ -122,6 +122,7 @@ public class BarriersService {
 
       nextPossibleNodeID = max(max(max(osm_maxNodeID, hibernate_maxNodeID),hibernate_maxObstacleIDStart),hibernate_maxObstacleIDEnd)+1;
       nextPossibleWayID = max(osm_maxWayID, hibernate_maxWayID)+1;
+      session.close();
     } catch (SQLException e) {
       e.printStackTrace();
     }
