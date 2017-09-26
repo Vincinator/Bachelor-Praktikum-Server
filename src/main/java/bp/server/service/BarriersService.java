@@ -2,6 +2,7 @@ package bp.server.service;
 
 import bp.common.model.*;
 import bp.common.model.obstacles.Construction;
+import bp.common.model.obstacles.FastTrafficLight;
 import bp.common.model.obstacles.Obstacle;
 import bp.common.model.obstacles.Stairs;
 import bp.common.model.ways.*;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -30,6 +32,7 @@ import io.swagger.annotations.Api;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -357,8 +360,7 @@ public class BarriersService {
     nodes3.add(node8);
     Way road3 = new Way("",nodes3);
     for (Node n : nodes3) n.setWay(road3);
-    BarriersService bs = new BarriersService();
-    bs.postNewWay(road3);
+
 /*
     Stairs stair2 = new Stairs();
     Stairs stair1 = new Stairs("sickness",long1, lat1, long2, lat2, 2, "yes");
