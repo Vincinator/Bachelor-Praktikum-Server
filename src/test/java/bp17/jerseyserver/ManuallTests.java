@@ -15,7 +15,7 @@ import java.util.List;
 public class ManuallTests {
     public static void main(String[] args) {
         // 1 Phase
-/*        Stairs stair1 = new Stairs("Lauteschlage", 8.65908, 49.87768, 8.65935, 49.87773, 10, "yes");
+        Stairs stair1 = new Stairs("Lauteschlage", 8.65908, 49.87768, 8.65935, 49.87773, 10, "yes");
         stair1.setRamp_wheelchair("yes");
         stair1.setId_way(150032847);
         stair1.setId_firstnode(1629692805);
@@ -40,11 +40,10 @@ public class ManuallTests {
         BarriersService bs = new BarriersService();
         bs.postNewStairs(stair1);
         bs.postNewStairs(trafficLight);
-        bs.postNewWay(way1);*/
+        bs.postNewWay(way1);
 
 
         // 2 Phase - A Stair on our street
-        BarriersService bs = new BarriersService();
         Stairs stair2 = new Stairs("Rossdörfe", 8.66859,49.86887, 8.66874, 49.86915, 5, "");
         stair2.setWidth(10);
         stair2.setTactile_paving("yes");

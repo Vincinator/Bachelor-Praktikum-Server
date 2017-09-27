@@ -1,5 +1,6 @@
 package bp.server.service;
 
+import bp.common.model.WayBlacklist;
 import bp.common.model.obstacles.Obstacle;
 import bp.common.model.obstacles.Stairs;
 import bp.common.model.ways.Node;
@@ -295,6 +296,24 @@ public class BarriersService {
       result = mapper.writerWithType(listJavaType).writeValueAsString(waysResult);
     } catch (JsonProcessingException e) {
       e.printStackTrace();
+    } catch (Exception e) {
+      return Response.status(503).entity(e.toString()).build();
+    }
+    return Response.status(200).entity(result).build();
+  }
+
+  @GET
+  @Path("/ways/blacklist")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response getWaysBlacklist() {
+    String result = "";
+    List<WayBlacklist> blacklist = null;
+    List<Long> blacklist_osmid= new ArrayList<>();
+    ObjectMapper mapper = new ObjectMapper();
+    JavaType listJavaType = mapper.getTypeFactory().constructCollectionType(List.class, Long.class);
+    try {
+      blacklist = getDataAsList(WayBlacklist.class);
+      result = mapper.writerWithType(listJavaType).writeValueAsString(blacklist);
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
     }
