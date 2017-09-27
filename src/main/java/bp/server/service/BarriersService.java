@@ -1,45 +1,30 @@
 package bp.server.service;
 
-import bp.common.model.*;
-import bp.common.model.obstacles.Construction;
-import bp.common.model.obstacles.FastTrafficLight;
 import bp.common.model.obstacles.Obstacle;
 import bp.common.model.obstacles.Stairs;
-import bp.common.model.ways.*;
+import bp.common.model.ways.Node;
+import bp.common.model.ways.Way;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.Api;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.crypto.Data;
-
-import io.swagger.annotations.Api;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.criterion.Projection;
-import org.hibernate.criterion.Projections;
-import org.hibernate.query.Query;
-import sun.net.www.protocol.file.FileURLConnection;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Long.max;
 
@@ -79,7 +64,7 @@ public class BarriersService {
 
     Connection postgres_connection = PostgreSQLJDBC.getInstance().getConnection();
 
-    Statement stmt1 = null;
+    Statement stmt1;
     try {
       // Get Informations from OSM Database
       stmt1 = postgres_connection.createStatement();
@@ -162,9 +147,9 @@ public class BarriersService {
     CriteriaQuery<T> criteria = builder.createQuery(typeParameterClass);
     Root<T> root = criteria.from(typeParameterClass);
     criteria.select(root);
-    List<T> datalist = session.createQuery(criteria).getResultList();
+    List<T> dataList = session.createQuery(criteria).getResultList();
     session.close();
-    return datalist;
+    return dataList;
   }
 
   /**
