@@ -88,7 +88,7 @@
     <dependency>
         <groupId>com.github.Vincinator</groupId>
         <artifactId>BP-Common</artifactId>
-        <version>5a9a4295f4</version>
+        <version>7f881f15d8</version>
         <scope>compile</scope>
     </dependency>
     <dependency>
