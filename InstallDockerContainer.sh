@@ -16,7 +16,7 @@ echo 'DEBUG: Start Dockerbuilding'
 # In order to test the server, you need geodata. 
 # For Development and Testing purposes we have limited our geodata to germany/hessen
 #wget http://download.geofabrik.de/europe/germany/hessen-latest.osm.pbf
-wget https://download.bbbike.org/osm/bbbike/Darmstadt/
+wget https://download.bbbike.org/osm/bbbike/Darmstadt/Darmstadt.osm.pbf
 
 # In order to Export the database, the ExportTool.jar must be compiled.
 # https://github.com/skisssbb/BP-ExportTool/
