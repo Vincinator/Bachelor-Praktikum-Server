@@ -266,7 +266,7 @@ public class ExportTool {
                 updateTableWays(o,updateWays);
                 updateTableWay_nodes(o,updateWay_Nodes, updateWay_Nodes2, insertWay_Nodes, getSequenceId);
             }
-            //c.commit();
+            c.commit();
             System.out.println("UPDATE OSM DB COMPLETED");
         } catch (/*SQL*/Exception e){
             e.printStackTrace();
@@ -843,7 +843,7 @@ public class ExportTool {
             insertInTableWays.close();
             insertInTableWay_nodes.close();
             insertInTableNodes.close();
-            //c.commit();
+            c.commit();
             System.out.println("UPDATE OSM DB COMPLETED");
         } catch (SQLException e){
             e.printStackTrace();
