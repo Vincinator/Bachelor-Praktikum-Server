@@ -187,8 +187,8 @@ public class BarriersService {
   @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postNewStairs(Obstacle obstacle) {
-    // update next possible NodeID if necessary
-    if(nextPossibleNodeID == 0) getNextPossibleNodeAndWayID();
+    // update next possible NodeID
+    getNextPossibleNodeAndWayID();
 
     // Give new Obstacle new OSM ID for Node
     obstacle.setOsm_id_start(nextPossibleNodeID);
@@ -197,6 +197,7 @@ public class BarriersService {
       obstacle.setOsm_id_end(nextPossibleNodeID);
       nextPossibleNodeID++;
     }
+    ExportTool.getInstance().setNextPossibleNodeId(nextPossibleNodeID);
 
     String result = "Obstacle hinzugefügt: " + obstacle;
     try {
@@ -226,7 +227,7 @@ public class BarriersService {
   @Path("/ways")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postNewWay(Way way) {
-    if(nextPossibleWayID == 0 || nextPossibleNodeID == 0) getNextPossibleNodeAndWayID();
+    getNextPossibleNodeAndWayID();
 
     way.setOsm_id(nextPossibleWayID);
     nextPossibleWayID++;
@@ -236,6 +237,8 @@ public class BarriersService {
       n.setWay(way);
       nextPossibleNodeID++;
     }
+    ExportTool.getInstance().setNextPossibleWayId(nextPossibleWayID);
+    ExportTool.getInstance().setNextPossibleNodeId(nextPossibleNodeID);
     String result = "Way hinzugefügt: " + way;
     try {
       // Session Factory is created only once in the life span of the application. Get it from the Singleton
@@ -342,11 +345,10 @@ public class BarriersService {
     stair1.setId_way(150032847);
     stair1.setId_firstnode(1629692805);
     stair1.setId_lastnode(2623782435L);
-
     bs.postNewStairs(stair1);
 
 
-/*     FastTrafficLight trafficLight = new FastTrafficLight("Mathe",8.65797,49.87866,0,0,10);
+    FastTrafficLight trafficLight = new FastTrafficLight("Mathe",8.65797,49.87866,0,0,10);
     trafficLight.setId_way(27557892);
     trafficLight.setId_firstnode(531560);
     trafficLight.setId_lastnode(302547910);
@@ -368,7 +370,7 @@ public class BarriersService {
     stair3.setId_way(15259487);
     stair3.setId_firstnode(3420827910L);
     stair3.setId_lastnode(207641109);
-    bs.postNewStairs(stair3);*/
+    bs.postNewStairs(stair3);
 
   }
 }

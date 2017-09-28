@@ -444,7 +444,7 @@ public class ExportTool {
      * @param pstm_removeWayFromWay
      */
     private WayBlacklist removeWayFromOSMDB(Obstacle o, PreparedStatement pstm_selectAWay,
-                                    PreparedStatement pstm_removeWayFromWayNodes, PreparedStatement pstm_removeWayFromWay) {
+                                            PreparedStatement pstm_removeWayFromWayNodes, PreparedStatement pstm_removeWayFromWay) {
         WayBlacklist wayToBeRemoved = giveWayToBeRemoved(o, pstm_selectAWay);
         postInTableWayBlacklist(wayToBeRemoved);
         if(wayToBeRemoved == null) return null;
@@ -723,15 +723,20 @@ public class ExportTool {
     private void updateNodeListOfObstacle(Obstacle ob, List<Node> middlePiece_nl) {
         Session session = null;
         Transaction tx = null;
+        List<Node> copyOfMiddlePiece = new ArrayList<>();
+        for(Node n:middlePiece_nl){
+            Node an = new Node(n.getLatitude(),n.getLongitude());
+            an.setObstacle(ob);
+            an.setOsm_id(n.getOsm_id());
+            an.setAlreadyExported(n.isAlreadyExported());
+            an.setAdditionalTags(n.getAdditionalTags());
+            copyOfMiddlePiece.add(an);
+        }
 
         try {
             session =  DatabaseSessionManager.instance().getSessionFactory().openSession();
             tx = session.beginTransaction();
-            ob.setNodes(middlePiece_nl);
-            for(Node n:middlePiece_nl){
-                n.setObstacle(ob);
-            }
-
+            ob.setNodes(copyOfMiddlePiece);
             session.saveOrUpdate(ob);
             tx.commit();
 
@@ -740,6 +745,7 @@ public class ExportTool {
             tx.rollback();
         }
         finally {session.close();}
+        System.out.println("All ways marked as exported in HibernateDB.");
     }
 
     /**
@@ -1120,6 +1126,22 @@ public class ExportTool {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public long getNextPossibleNodeId() {
+        return nextPossibleNodeId;
+    }
+
+    public void setNextPossibleNodeId(long nextPossibleNodeId) {
+        this.nextPossibleNodeId = nextPossibleNodeId;
+    }
+
+    public long getNextPossibleWayId() {
+        return nextPossibleWayId;
+    }
+
+    public void setNextPossibleWayId(long nextPossibleWayId) {
+        this.nextPossibleWayId = nextPossibleWayId;
     }
 
     public static void main(String[] args) {
