@@ -21,6 +21,11 @@ public class ManuallTests {
         stair1.setId_firstnode(1629692805);
         stair1.setId_lastnode(2623782435L);
 
+        Stairs stair3 = new Stairs("Heinrich-Fuhr",8.67131, 49.87122, 8.66793, 49.87148, 124,"no");
+        stair3.setId_way(15259487);
+        stair3.setId_firstnode(3420827910L);
+        stair3.setId_lastnode(207641109);
+
         FastTrafficLight trafficLight = new FastTrafficLight("Mathe",8.65797,49.87866,0,0,10);
         trafficLight.setId_way(27557892);
         trafficLight.setId_firstnode(531560);
@@ -51,5 +56,6 @@ public class ManuallTests {
         stair2.setId_firstnode(5003906400L);
         stair2.setId_lastnode(5003906401L);
         bs.postNewStairs(stair2);
+        bs.postNewStairs(stair3);
     }
 }
