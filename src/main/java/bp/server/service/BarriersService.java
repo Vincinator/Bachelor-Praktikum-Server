@@ -1,6 +1,7 @@
 package bp.server.service;
 
 import bp.common.model.WayBlacklist;
+import bp.common.model.obstacles.FastTrafficLight;
 import bp.common.model.obstacles.Obstacle;
 import bp.common.model.obstacles.Stairs;
 import bp.common.model.ways.Node;
@@ -343,5 +344,31 @@ public class BarriersService {
     stair1.setId_lastnode(2623782435L);
 
     bs.postNewStairs(stair1);
+
+
+/*     FastTrafficLight trafficLight = new FastTrafficLight("Mathe",8.65797,49.87866,0,0,10);
+    trafficLight.setId_way(27557892);
+    trafficLight.setId_firstnode(531560);
+    trafficLight.setId_lastnode(302547910);
+    bs.postNewStairs(trafficLight);
+
+    List<Node> nodes = new ArrayList<>();
+    Way way1 = new Way("Ma Street", nodes);
+    nodes.add(new Node(49.86867, 8.6686));
+    nodes.add(new Node(49.86933, 8.66877));
+    way1.setOsmid_firstWay(148850705);
+    way1.setOsmid_firstWayFirstNode(2528617495L);
+    way1.setOsmid_firstWaySecondNode(2528617475L);
+    way1.setOsmid_secondWay(148061763);
+    way1.setOsmid_secondWayFirstNode(1215967284);
+    way1.setOsmid_secondWaySecondNode(626305);
+    bs.postNewWay(way1);
+
+    Stairs stair3 = new Stairs("Heinrich-Fuhr",8.67131, 49.87122, 8.66793, 49.87148, 124,"no");
+    stair3.setId_way(15259487);
+    stair3.setId_firstnode(3420827910L);
+    stair3.setId_lastnode(207641109);
+    bs.postNewStairs(stair3);*/
+
   }
 }
