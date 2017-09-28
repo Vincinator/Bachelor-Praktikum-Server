@@ -16,8 +16,8 @@ COPY ExportTool.jar /opt/
 
 RUN service postgresql start && \
             service postgresql start && \
-            #su postgres -c "createdb hibernatedb --owner postgres"  && \
-            #sudo -u postgres psql -U postgres -d postgres -c "alter user postgres with password 'password';" && \
+            su postgres -c "createdb hibernatedb --owner postgres"  && \
+            sudo -u postgres psql -U postgres -d postgres -c "alter user postgres with password 'password';" && \
             sudo rm -rf /var/lib/tomcat8/webapps/ROOT && \
             sudo cp /opt/ROOT.war /var/lib/tomcat8/webapps/ && \
             sudo chown tomcat8:tomcat8 /var/lib/tomcat8/webapps/ROOT.war && \
