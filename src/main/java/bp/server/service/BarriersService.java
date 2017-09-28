@@ -339,8 +339,13 @@ public class BarriersService {
 
   public static void main(String[] args) {
     BarriersService bs = new BarriersService();
+    Stairs s = new Stairs("",8.65287534892559,49.875503124503545,8.652864620089531,49.87583673374167,10,"no");
+    s.setId_way(359450432);
+    s.setId_firstnode(253166340);
+    s.setId_lastnode(394000978);
+    bs.postNewStairs(s);
 
-    Stairs stair1 = new Stairs("Lauteschlage", 8.65908, 49.87768, 8.65935, 49.87773, 10, "yes");
+/*    Stairs stair1 = new Stairs("Lauteschlage", 8.65908, 49.87768, 8.65935, 49.87773, 10, "yes");
     stair1.setRamp_wheelchair("yes");
     stair1.setId_way(150032847);
     stair1.setId_firstnode(1629692805);
@@ -370,7 +375,15 @@ public class BarriersService {
     stair3.setId_way(15259487);
     stair3.setId_firstnode(3420827910L);
     stair3.setId_lastnode(207641109);
-    bs.postNewStairs(stair3);
+    bs.postNewStairs(stair3);*/
+
+    List<Way> ways = bs.getDataAsList(Way.class);
+    for(Way w: ways){
+      System.out.println("This is the Way Object:"+w+" with:" + w.getOsm_id());
+      for(Node n:w.getNodes()){
+        System.out.println("------"+n.getOsm_id()+"------"+n.getLatitude()+","+n.getLongitude());
+      }
+    }
 
   }
 }

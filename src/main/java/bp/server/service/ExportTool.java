@@ -268,7 +268,7 @@ public class ExportTool {
             }
             c.commit();
             System.out.println("UPDATE OSM DB COMPLETED");
-        } catch (/*SQL*/Exception e){
+        } catch (Exception e){
             e.printStackTrace();
             try {
                 c.rollback();
@@ -845,7 +845,7 @@ public class ExportTool {
             insertInTableNodes.close();
             c.commit();
             System.out.println("UPDATE OSM DB COMPLETED");
-        } catch (SQLException e){
+        } catch (Exception e){
             e.printStackTrace();
             try {
                 c.rollback();
