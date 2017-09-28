@@ -1,4 +1,5 @@
-FROM vincinator/bp:live
+#FROM vincinator/bp:live
+FROM ubuntu:16.04
 MAINTAINER Vincent Riesop (Vincent.Riesop@yahoo.com)
 
 RUN apt-get update --fix-missing && apt-get install -y postgresql-9.5 postgresql-contrib-9.5 postgresql-9.5-postgis-2.2 sudo default-jre tomcat8 wget vim osmosis
