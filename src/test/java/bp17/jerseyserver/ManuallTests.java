@@ -14,14 +14,17 @@ import java.util.List;
  */
 public class ManuallTests {
     public static void main(String[] args) {
+
         // 1 Phase
         Stairs stair1 = new Stairs("Lauteschlage", 8.65908, 49.87768, 8.65935, 49.87773, 10, "yes");
         stair1.setRamp_wheelchair("yes");
         stair1.setId_way(150032847);
         stair1.setId_firstnode(1629692805);
         stair1.setId_lastnode(2623782435L);
+        BarriersService bs = new BarriersService();
+        bs.postNewStairs(stair1);
 
-        Stairs stair3 = new Stairs("Heinrich-Fuhr",8.67131, 49.87122, 8.66793, 49.87148, 124,"no");
+/*        Stairs stair3 = new Stairs("Heinrich-Fuhr",8.67131, 49.87122, 8.66793, 49.87148, 124,"no");
         stair3.setId_way(15259487);
         stair3.setId_firstnode(3420827910L);
         stair3.setId_lastnode(207641109);
@@ -56,6 +59,6 @@ public class ManuallTests {
         stair2.setId_firstnode(5003906400L);
         stair2.setId_lastnode(5003906401L);
         bs.postNewStairs(stair2);
-        bs.postNewStairs(stair3);
+        bs.postNewStairs(stair3);*/
     }
 }

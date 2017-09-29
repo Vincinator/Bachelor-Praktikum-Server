@@ -1,6 +1,7 @@
 package bp.server.service;
 
 import bp.common.model.WayBlacklist;
+import bp.common.model.obstacles.FastTrafficLight;
 import bp.common.model.obstacles.Obstacle;
 import bp.common.model.obstacles.Stairs;
 import bp.common.model.ways.Node;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
@@ -20,6 +22,8 @@ import javax.persistence.criteria.Root;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.crypto.Data;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -175,7 +179,7 @@ public class BarriersService {
 
   /**
    * (Jersey) API exposes the POST interface.
-   * Creates new stairs
+   * Creates new stairs and add them to Hibernate and OSM DB
    *
    * @return HTTP Result
    */
@@ -183,8 +187,8 @@ public class BarriersService {
   @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postNewStairs(Obstacle obstacle) {
-    // update next possible NodeID if necessary
-    if(nextPossibleNodeID == 0) getNextPossibleNodeAndWayID();
+    // update next possible NodeID
+    getNextPossibleNodeAndWayID();
 
     // Give new Obstacle new OSM ID for Node
     obstacle.setOsm_id_start(nextPossibleNodeID);
@@ -193,6 +197,7 @@ public class BarriersService {
       obstacle.setOsm_id_end(nextPossibleNodeID);
       nextPossibleNodeID++;
     }
+    ExportTool.getInstance().setNextPossibleNodeId(nextPossibleNodeID);
 
     String result = "Obstacle hinzugefügt: " + obstacle;
     try {
@@ -207,6 +212,7 @@ public class BarriersService {
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
     }
+    result = ". "+ result + ExportTool.getInstance().startExportProcess();
     return Response.status(201).entity(result).build();
   }
 
@@ -221,7 +227,7 @@ public class BarriersService {
   @Path("/ways")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response postNewWay(Way way) {
-    if(nextPossibleWayID == 0 || nextPossibleNodeID == 0) getNextPossibleNodeAndWayID();
+    getNextPossibleNodeAndWayID();
 
     way.setOsm_id(nextPossibleWayID);
     nextPossibleWayID++;
@@ -231,6 +237,8 @@ public class BarriersService {
       n.setWay(way);
       nextPossibleNodeID++;
     }
+    ExportTool.getInstance().setNextPossibleWayId(nextPossibleWayID);
+    ExportTool.getInstance().setNextPossibleNodeId(nextPossibleNodeID);
     String result = "Way hinzugefügt: " + way;
     try {
       // Session Factory is created only once in the life span of the application. Get it from the Singleton
@@ -243,6 +251,7 @@ public class BarriersService {
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()+way.toString()).build();
     }
+    result = ". "+ result + ExportTool.getInstance().startExportProcess();
     return Response.status(201).entity(result).build();
   }
 
@@ -329,82 +338,52 @@ public class BarriersService {
   }
 
   public static void main(String[] args) {
-    double lat1 = 49.877633;
-    double long1 = 8.649615;
-    double lat2 = 49.877405;
-    double long2 = 8.649679;
-    double lat3 = 49.876802;
-    double long3 = 8.649559;
-    double lat4 = 8.111111;
-    double long4 = 49.666666;
-    Node node1 = new Node(lat1, long1);
-    Node node2 = new Node(lat2, long2);
-    Node node3 = new Node(lat3, long3);
-    Node node4 = new Node(lat1, long2);
-    Node node5 = new Node(lat2, long3);
-    Node node6 = new Node(lat3, long1);
-    Node node7 = new Node(lat4,long4);
-    Node node8 = new Node(long4, lat4);
-
-    ArrayList<Node> nodes = new ArrayList<Node>();
-    nodes.add(node1);
-    nodes.add(node2);
-    nodes.add(node3);
-    Way road1 = new Way("", nodes);
-    for (Node n : nodes) n.setWay(road1);
-
-    ArrayList<Node> nodes2 = new ArrayList<>();
-    nodes2.add(node4);
-    nodes2.add(node5);
-    nodes2.add(node6);
-    Way road2 = new Way("", nodes2);
-    for (Node n : nodes2) n.setWay(road2);
-
-    ArrayList<Node> nodes3 = new ArrayList<>();
-    nodes3.add(node7);
-    nodes3.add(node8);
-    Way road3 = new Way("",nodes3);
-    for (Node n : nodes3) n.setWay(road3);
-
-/*
-    Stairs stair2 = new Stairs();
-    Stairs stair1 = new Stairs("sickness",long1, lat1, long2, lat2, 2, "yes");
     BarriersService bs = new BarriersService();
+    Stairs s = new Stairs("",8.65287534892559,49.875503124503545,8.652864620089531,49.87583673374167,10,"no");
+    s.setId_way(99999999999L);
+    s.setId_firstnode(253166340);
+    s.setId_lastnode(394000978);
+    bs.postNewStairs(s);
+
+/*    Stairs stair1 = new Stairs("Lauteschlage", 8.65908, 49.87768, 8.65935, 49.87773, 10, "yes");
+    stair1.setRamp_wheelchair("yes");
+    stair1.setId_way(150032847);
+    stair1.setId_firstnode(1629692805);
+    stair1.setId_lastnode(2623782435L);
     bs.postNewStairs(stair1);
 
 
-    Stairs stairs1 = new Stairs("holy", long1, lat1, 52, 12, true);
-    Construction construction1 = new Construction("nothing", long2, lat2, 100, new java.sql.Date(System.currentTimeMillis()));
+    FastTrafficLight trafficLight = new FastTrafficLight("Mathe",8.65797,49.87866,0,0,10);
+    trafficLight.setId_way(27557892);
+    trafficLight.setId_firstnode(531560);
+    trafficLight.setId_lastnode(302547910);
+    bs.postNewStairs(trafficLight);
 
+    List<Node> nodes = new ArrayList<>();
+    Way way1 = new Way("Ma Street", nodes);
+    nodes.add(new Node(49.86867, 8.6686));
+    nodes.add(new Node(49.86933, 8.66877));
+    way1.setOsmid_firstWay(148850705);
+    way1.setOsmid_firstWayFirstNode(2528617495L);
+    way1.setOsmid_firstWaySecondNode(2528617475L);
+    way1.setOsmid_secondWay(148061763);
+    way1.setOsmid_secondWayFirstNode(1215967284);
+    way1.setOsmid_secondWaySecondNode(626305);
+    bs.postNewWay(way1);
 
+    Stairs stair3 = new Stairs("Heinrich-Fuhr",8.67131, 49.87122, 8.66793, 49.87148, 124,"no");
+    stair3.setId_way(15259487);
+    stair3.setId_firstnode(3420827910L);
+    stair3.setId_lastnode(207641109);
+    bs.postNewStairs(stair3);*/
 
-    ObjectMapper mapper = new ObjectMapper();
-    String jsonString = "";
-    try {
-      jsonString = mapper.writeValueAsString(road);
-      System.out.println(jsonString);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
+    List<Way> ways = bs.getDataAsList(Way.class);
+    for(Way w: ways){
+      System.out.println("This is the Way Object:"+w+" with:" + w.getOsm_id());
+      for(Node n:w.getNodes()){
+        System.out.println("------"+n.getOsm_id()+"------"+n.getLatitude()+","+n.getLongitude());
+      }
     }
 
-    BarriersService bs = new BarriersService();
-    bs.postNewWay(road3);
-    bs.postNewWay(road1);
-    bs.postNewWay(road2);
-    bs.postNewStairs(stairs1);
-    bs.postNewStairs(construction1);
-
-    List<Way> alist = getDataAsList(Way.class);
-    for (Way w : alist) System.out.println(w.getOsm_id() == 0);
-
-    DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-    List<Obstacle> obslist = getDataAsList(Obstacle.class);
-    for (Obstacle ob : obslist) {
-      System.out.println(ob.toString());
-      if (ob instanceof Construction) {
-        Construction cons = (Construction) ob;
-        System.out.printf(String.valueOf(formatter.format(cons.getValidUntil())));
-      }
-    }*/
   }
 }
