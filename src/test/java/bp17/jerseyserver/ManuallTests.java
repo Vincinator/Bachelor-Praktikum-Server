@@ -36,8 +36,10 @@ public class ManuallTests {
 
         List<Node> nodes = new ArrayList<>();
         Way way1 = new Way("Ma Street", nodes);
-        nodes.add(new Node(49.86867, 8.6686));
-        nodes.add(new Node(49.86933, 8.66877));
+        Node node1 = new Node(49.86867, 8.6686);
+        Node node2 = new Node(49.86933, 8.66877);
+        nodes.add(node1);
+        nodes.add(node2);
         way1.setOsmid_firstWay(148850705);
         way1.setOsmid_firstWayFirstNode(2528617495L);
         way1.setOsmid_firstWaySecondNode(2528617475L);

@@ -460,11 +460,10 @@ public class ExportTool {
     private WayBlacklist removeWayFromOSMDB(Obstacle o, PreparedStatement pstm_selectAWay,
                                             PreparedStatement pstm_removeWayFromWayNodes, PreparedStatement pstm_removeWayFromWay) throws RollbackException{
         WayBlacklist wayToBeRemoved = giveWayToBeRemoved(o, pstm_selectAWay);
-        postInTableWayBlacklist(wayToBeRemoved);
-        if(wayToBeRemoved == null) return null;
-
         // Remove way from all osm tables
         try {
+            postInTableWayBlacklist(wayToBeRemoved);
+            if(wayToBeRemoved == null) return null;
             // Remove way from way_nodes
             pstm_removeWayFromWayNodes.setLong(1,o.getId_way());
             pstm_removeWayFromWayNodes.executeUpdate();
