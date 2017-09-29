@@ -322,7 +322,7 @@ public class BarriersService {
     JavaType listJavaType = mapper.getTypeFactory().constructCollectionType(List.class, Long.class);
     try {
       blacklist = getDataAsList(WayBlacklist.class);
-      result = mapper.writerWithType(listJavaType).writeValueAsString(blacklist);
+      result = mapper.writerWithType(listJavaType).writeValueAsString(blacklist_osmid);
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
     }
