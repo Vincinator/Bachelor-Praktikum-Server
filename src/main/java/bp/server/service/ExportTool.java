@@ -221,6 +221,11 @@ public class ExportTool {
             try {
                 c.rollback();
                 hibernate_con.rollback();
+                List<Way> waylist = getAllWays();
+                List<Obstacle> obslist = getAllObstacles();
+                updateAlredyExportedWayAndNode(waylist);
+                updateAlreadyExportedObstacle(obslist);
+
             } catch (SQLException e1) {
                 e1.printStackTrace();
             }
