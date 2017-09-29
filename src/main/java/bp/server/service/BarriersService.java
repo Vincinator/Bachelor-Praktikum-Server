@@ -212,7 +212,7 @@ public class BarriersService {
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()).build();
     }
-    ExportTool.getInstance().startExportProcess();
+    result = ". "+ result + ExportTool.getInstance().startExportProcess();
     return Response.status(201).entity(result).build();
   }
 
@@ -251,7 +251,7 @@ public class BarriersService {
     } catch (Exception e) {
       return Response.status(503).entity(e.toString()+way.toString()).build();
     }
-    ExportTool.getInstance().startExportProcess();
+    result = ". "+ result + ExportTool.getInstance().startExportProcess();
     return Response.status(201).entity(result).build();
   }
 
@@ -340,7 +340,7 @@ public class BarriersService {
   public static void main(String[] args) {
     BarriersService bs = new BarriersService();
     Stairs s = new Stairs("",8.65287534892559,49.875503124503545,8.652864620089531,49.87583673374167,10,"no");
-    s.setId_way(359450432);
+    s.setId_way(99999999999L);
     s.setId_firstnode(253166340);
     s.setId_lastnode(394000978);
     bs.postNewStairs(s);

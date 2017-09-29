@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.postgresql.util.HStoreConverter;
 
+import javax.persistence.RollbackException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -207,13 +208,26 @@ public class ExportTool {
     /**
      * the first method from Exporttool to be executed
      */
-    public void startExportProcess(){
+    public String startExportProcess(){
+        String result = "EXPORTED OK.";
+        try{
         System.out.println("WRITE WAY ------------------------------------------------");
         writeWaysInOSMDatabase();
         System.out.println("WRITE WAY done ------------------------------------------------");
-        writeObstaclesInOsmDatabase();
+            writeObstaclesInOsmDatabase();
+        }catch(RollbackException e){
+            e.printStackTrace();
+            result = "ROLLBACK Happened.";
+            try {
+                c.rollback();
+                hibernate_con.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
         System.out.println("WRITE Obstacle done ------------------------------------------------");
         //closeUpAllConnections();
+        return result;
     }
 
     /**
@@ -221,7 +235,7 @@ public class ExportTool {
      * at first write all One Node Obstacle
      * then all the 2 nodes Obstacles
      */
-    private void writeObstaclesInOsmDatabase(){
+    private void writeObstaclesInOsmDatabase() throws RollbackException{
         //TODO check if insert Obstacle working, not tested yet after small changes
         List<Obstacle> obstacleList = getAllObstacles();
         if(obstacleList.isEmpty()) return;
@@ -405,7 +419,7 @@ public class ExportTool {
      * this method write Obstacle which consist of 2 Nodes in the OSM Database
      * @param obstacleList the list of the obstacles consisting of 2 nodes
      */
-    private void writeTwoNodeObstaclesInOsmDatabase(List<Obstacle> obstacleList) {
+    private void writeTwoNodeObstaclesInOsmDatabase(List<Obstacle> obstacleList) throws RollbackException{
         Way removedWayObject = null;
         PreparedStatement pstm_selectAWay = null;
         PreparedStatement pstm_removeWayFromWayNodes = null;
@@ -444,7 +458,7 @@ public class ExportTool {
      * @param pstm_removeWayFromWay
      */
     private WayBlacklist removeWayFromOSMDB(Obstacle o, PreparedStatement pstm_selectAWay,
-                                            PreparedStatement pstm_removeWayFromWayNodes, PreparedStatement pstm_removeWayFromWay) {
+                                            PreparedStatement pstm_removeWayFromWayNodes, PreparedStatement pstm_removeWayFromWay) throws RollbackException{
         WayBlacklist wayToBeRemoved = giveWayToBeRemoved(o, pstm_selectAWay);
         postInTableWayBlacklist(wayToBeRemoved);
         if(wayToBeRemoved == null) return null;
@@ -460,6 +474,9 @@ public class ExportTool {
             pstm_removeWayFromWay.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new RollbackException();
         }
         return wayToBeRemoved;
     }
@@ -503,7 +520,7 @@ public class ExportTool {
      * Post a WayBlacklist Object in HibernateDB
      * @param wayToBeRemoved
      */
-    private void postInTableWayBlacklist(WayBlacklist wayToBeRemoved) {
+    private void postInTableWayBlacklist(WayBlacklist wayToBeRemoved) throws RollbackException{
         Session session = null;
         Transaction tx = null;
         try{
@@ -515,6 +532,7 @@ public class ExportTool {
         }catch (Exception e){
             e.printStackTrace();
             tx.rollback();
+            throw new RollbackException();
         }finally {
             session.close();
         }
@@ -869,7 +887,7 @@ public class ExportTool {
         return datalist;
     }
 
-    private void insertWayInTableWay(Way w, PreparedStatement insertInTableWays) {
+    private void insertWayInTableWay(Way w, PreparedStatement insertInTableWays) throws RollbackException{
         long id = w.getOsm_id();
         int version = -1;
         int userID = -1;
@@ -892,6 +910,10 @@ public class ExportTool {
             insertInTableWays.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RollbackException();
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RollbackException();
         }
     }
 
